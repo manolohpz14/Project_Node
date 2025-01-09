@@ -15,4 +15,3 @@ services:
     dockerfilePath: Dockerfile-Mongo
     plan: free
     autoDeploy: true
-    dockerCommand: "--bind_ip_all"
