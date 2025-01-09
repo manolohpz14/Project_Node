@@ -11,14 +11,14 @@ services:
     ports:
       - port: 5050
     dependsOn:
-      - mongo-service
+      - name: mongo-service
 
-  - type: service
+  - type: web
     name: mongo-service
     env: docker
-    image: mongo
     plan: free
+    image: mongo
     autoDeploy: true
-    ports:
-      - port: 27018
     dockerCommand: "--bind_ip_all"
+    ports:
+      - port: 27017
