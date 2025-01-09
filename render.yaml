@@ -7,12 +7,10 @@ services:
     autoDeploy: true
     envVars:
       - key: PATH_DB
-        value: mongo-service
-    dependsOn:
-      - name: mongo-service
+        value: mongo
 
   - type: web
-    name: mongo-service
+    name: mongo
     env: docker
     dockerfilePath: Dockerfile-Mongo
     plan: free
