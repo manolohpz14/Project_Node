@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: node-service
+    env: docker
+    plan: free # Cambia esto según el plan que elijas en Render
+    dockerfilePath: Dockerfile
+    autoDeploy: true
+    envVars:
+      - key: PATH_DB
+        value: mongo
+    ports:
+      - port: 5050
+    dependsOn:
+      - mongo-service
+
+  - type: service
+    name: mongo-service
+    env: docker
+    image: mongo
+    plan: free
+    autoDeploy: true
+    ports:
+      - port: 27018
+    dockerCommand: "--bind_ip_all"
