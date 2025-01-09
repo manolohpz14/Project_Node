@@ -1,0 +1,8 @@
+# Usar la imagen oficial de MongoDB
+FROM mongo:latest
+
+# Exponer el puerto 27017 en el contenedor (puerto por defecto de MongoDB)
+EXPOSE 27017
+
+# Iniciar MongoDB con un comando específico (por defecto MongoDB se ejecuta al iniciar el contenedor)
+CMD ["mongod"]

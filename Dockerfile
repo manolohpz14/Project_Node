@@ -1,21 +1,17 @@
-#Creo mi imagen de Node
-
+# Utilizar la imagen base de Node.js
 FROM node:22.11-slim
 
-# RUN mkdir -p /usr/src/app
-
-# WORKDIR /usr/src/app
-
+# Copiar los archivos de dependencias al contenedor
 COPY package*.json .
 
-#instalo node_module segun la distribucion de la imagenm
-
+# Instalar las dependencias de Node.js
 RUN npm install
 
-#me copio todo lo que tengo en mi segundo_proyecto_node a el directorio de mi contenedor
+# Copiar el resto de los archivos de tu proyecto
 COPY . .
 
-RUN pwd
+# Exponer el puerto 5050 para que el contenedor pueda escuchar en ese puerto
+EXPOSE 5050
 
+# Ejecutar la aplicación Node.js
 CMD ["node", "index.cjs"]
-
