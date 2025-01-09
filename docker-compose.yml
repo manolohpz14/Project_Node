@@ -1,0 +1,32 @@
+
+services:
+  node:
+    image: contendor_node2 #Oye, hazme la imagen de node a partir de mi Dockerfile
+    restart: always
+    container_name: contendor_node
+    ports:
+      - "5050:5050"
+    depends_on:
+      - mongo
+    networks:
+      - mi-app-node
+    environment:
+      - PATH_DB=mongo #esto se controla desde el .env de mi proyecto
+    # volumes:
+    #   - C:\Users\manolo\Desktop\MaterialDINT\proyecto_node_asignatura:/usr/src/app # Bind mount para almacenar los datos
+
+
+  mongo:
+    container_name: contenedor_mongodb
+    image: mongo
+    ports:
+      - "27018:27017"
+    networks:
+      - mi-app-node
+    # volumes:
+    #   - C:\data\db:/data/db # Bind mount para almacenar los datos
+
+
+networks:
+  mi-app-node:
+    driver: bridge
