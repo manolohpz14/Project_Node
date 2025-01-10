@@ -18,6 +18,7 @@ async function conexion() {
             tls: true,               // Usar TLS (SSL)
             tlsCAFile: path.join(__dirname, '../ca.crt'), // Ruta al certificado de la CA
             tlsCertificateKeyFile: path.join(__dirname, '../server_combined.pem'),
+            tlsAllowInvalidCertificates: true
         });
     } catch (error) {  
         console.log(error);
