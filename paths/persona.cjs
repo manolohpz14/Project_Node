@@ -275,6 +275,7 @@ router.get("/inicio/get_all_activities_user",verificarToken, persona_Controller.
 router.post("/inicio/upload_message",verificarToken, persona_Controller.upload_message)
 router.post("/inicio/upload_activity",verificarToken, [subidas_actividades.single("archivo")], persona_Controller.upload_activity)
 router.delete("/inicio/delete_activity_and_File",verificarToken, persona_Controller.delete_activity_and_File) //Ruta que nos permite borrar usuarios.
+router.post("/inicio/add_activities", persona_Controller.insertarDocumentos)
 
 
 

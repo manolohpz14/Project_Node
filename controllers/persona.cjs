@@ -9,6 +9,44 @@ const fs = require('fs').promises
 
 //----------------------función para guardar los datos de usuario en la db-------------------
 
+
+
+
+
+
+
+
+async function insertarDocumentos(req, res) {
+    try {
+        // Obtener las actividades desde req.body
+        const actividades = req.body; // Asumiendo que el cuerpo de la solicitud contiene un array de actividades
+
+        // Validar que el cuerpo de la solicitud no esté vacío y tenga las actividades
+        if (!actividades || actividades.length === 0) {
+            return res.status(400).json({ message: "No se proporcionaron actividades" });
+        }
+
+        // Insertar los documentos en la colección 'actividad'
+
+        const resultado = await Actividades.insertMany(actividades);
+        console.log("Documentos insertados con éxito:", resultado);
+        res.status(201).json({ message: "Documentos insertados correctamente", data: resultado });
+
+
+    } catch (error) {
+        console.error("Error al insertar los documentos:", error);
+        // Responder con un error
+        res.status(500).json({ message: "Error al insertar los documentos", error: error.message });
+    }
+}
+
+
+
+
+
+
+
+
 function get_all_activities(req, res) {
     Actividades.find()
         .then(actividades => {
@@ -694,7 +732,8 @@ module.exports={
     get_minutes_connected,
     upload_activity,
     get_all_activities_user,
-    delete_activity_and_File
+    delete_activity_and_File,
+    insertarDocumentos
     
     
 }

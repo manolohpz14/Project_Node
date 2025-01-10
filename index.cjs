@@ -25,7 +25,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 // //Escuchar peticiones http
-app.listen(5050, function(){
+app.listen(5049, function(){
     console.log("escuchando en dicho puerto 5050")
 })
 

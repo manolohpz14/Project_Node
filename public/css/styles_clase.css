@@ -201,6 +201,20 @@ button{
         font-size: 12px;
     }
 
+    #images_container h3{
+        font-size: 0.9rem;
+       
+    }
+
+    #images_container {
+        width: 6.7rem;
+    }
+
+
+    .topbar-left h2{
+        font-size: 1rem;
+    }
+
     .grid{
         gap:0.2rem
     }
