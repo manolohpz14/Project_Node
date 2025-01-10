@@ -34,7 +34,7 @@ RUN mkdir -p /data/db
 
 # Paso 6: Crear un script para ejecutar MongoDB y Node.js
 RUN echo '#!/bin/bash\n\
-mongod --dbpath /data/db &\n\
+mongod --dbpath /data/db  --sslMode disabled &\n\
 node index.cjs' > /start.sh && chmod +x /start.sh
 
 # Comando por defecto para ejecutar el script
