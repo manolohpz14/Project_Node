@@ -1,5 +1,5 @@
 
-function eventforActivities (obj_actividades,upload_activity,get_all_activities_user,delete_activity_and_File) {
+function eventforActivities (obj_actividades,upload_activity,get_all_activities_user,delete_activity_and_File,downloadFile) {
 
     document.querySelector("#ActivitiesDiv").addEventListener("click", async function() {
       let grid = document.querySelector(".grid");
@@ -87,44 +87,44 @@ function eventforActivities (obj_actividades,upload_activity,get_all_activities_
 
           //1.8.2) Añadimos un evento de click a cada div de actividad, controlando cuando se abre para entregar y cuando se cierra
             actividadDiv.addEventListener("click", function(){
-              const estadoSpan=actividadDiv.querySelector(".estado")
-              const existingInteractionContainer = actividadDiv.querySelector(".interaction-container");
-              console.log(existingInteractionContainer)
-              if (existingInteractionContainer) {
-                  const p_explicacion = actividadDiv.querySelector("#p_explicacion");
-                  // || (estadoSpan.textContent==="Entregado")
-                  if ((existingInteractionContainer.querySelector("textarea").value==="" && existingInteractionContainer.querySelector("#containerForSummary").innerHTML==="")
-                    || (estadoSpan.textContent==="Entregado")) {
+                const estadoSpan=actividadDiv.querySelector(".estado")
+                const existingInteractionContainer = actividadDiv.querySelector(".interaction-container");
+                console.log(existingInteractionContainer)
+                if (existingInteractionContainer) {
+                    const p_explicacion = actividadDiv.querySelector("#p_explicacion");
+                    // || (estadoSpan.textContent==="Entregado")
+                    if ((existingInteractionContainer.querySelector("textarea").value==="" && existingInteractionContainer.querySelector("#containerForSummary").innerHTML==="")
+                      || (estadoSpan.textContent==="Entregado")) {
 
-                    existingInteractionContainer.remove();
-                    p_explicacion.remove()
-                    const estadoSpan=actividadDiv.querySelector(".estado")
-                    estadoSpan.textContent="Abrir para ver"
-                    estadoSpan.style.color="rgba(0,0,0,1)"
+                      existingInteractionContainer.remove();
+                      p_explicacion.remove()
+                      const estadoSpan=actividadDiv.querySelector(".estado")
+                      estadoSpan.textContent="Abrir para ver"
+                      estadoSpan.style.color="rgba(0,0,0,1)"
 
 
-                    setTimeout(() => {
-                        actividadDiv.style.height = "auto";
-                    }, 10);
-                  return
-                  }
-                  else {
-                    const confirmDelete = confirm("¿Estás seguro? Perderás la selección.");
-                    if (confirmDelete) {
-                        existingInteractionContainer.remove();
-                        p_explicacion.remove();
-                        setTimeout(() => {
-                            actividadDiv.style.height ="auto";
-                        }, 10);
-                        const estadoSpan=actividadDiv.querySelector(".estado")
-                        estadoSpan.textContent="Abrir para ver"
-                        estadoSpan.style.color="rgba(0,0,0,1)"
-
+                      setTimeout(() => {
+                          actividadDiv.style.height = "auto";
+                      }, 10);
+                    return
                     }
-                    return; // Salimos para evitar añadir otro interactionContainer}
-                
+                    else {
+                      const confirmDelete = confirm("¿Estás seguro? Perderás la selección.");
+                      if (confirmDelete) {
+                          existingInteractionContainer.remove();
+                          p_explicacion.remove();
+                          setTimeout(() => {
+                              actividadDiv.style.height ="auto";
+                          }, 10);
+                          const estadoSpan=actividadDiv.querySelector(".estado")
+                          estadoSpan.textContent="Abrir para ver"
+                          estadoSpan.style.color="rgba(0,0,0,1)"
+
+                      }
+                      return; // Salimos para evitar añadir otro interactionContainer}
+                  
+                  }
                 }
-              }
 
 
                 //1.8.3) Cada div tiene un interactionContainer, que contendrá el textarea para enviar comentarios y
@@ -138,16 +138,32 @@ function eventforActivities (obj_actividades,upload_activity,get_all_activities_
                   event.stopPropagation();
                 })
                 //Añadimos la exlicacion de la actividad
-                const p_explicacion=document.createElement("div")
-                p_explicacion.style.textAlign="left"
-                p_explicacion.style.color="grey"
-                p_explicacion.innerHTML='Explicacion: <span class="estado" style="color: black;">'+actividad.Explicacion+'</span>'
-                p_explicacion.id="p_explicacion"
-                p_explicacion.style.marginBottom="1rem"
-                p_explicacion.style.fontSize="0.8rem"
-                interactionContainer.append(p_explicacion)
+                const p_explicacion = document.createElement("div");
+                p_explicacion.style.textAlign = "left";
+                p_explicacion.style.color = "grey";
+                
+                // Obtener el texto de la base de datos
+                let expl = actividad.Explicacion;
+                
+                // Reemplazar los saltos de línea por etiquetas <br> para que sean visibles en el navegador
+                expl = expl.replace(/\n/g, '<br>');
+                
+                // Aquí reemplazamos las URLs por enlaces clickeables
+                const enlaceRegex = /(https?:\/\/[^\s]+)/g; // Expresión regular para encontrar URLs
+                expl = expl.replace(enlaceRegex, (url) => {
+                    return `<a href="${url}" target="_blank" style="color: blue; text-decoration: underline;">${url}</a>`;
+                });
+                
+                // Insertar el texto con los saltos de línea y enlaces en el HTML
+                p_explicacion.innerHTML = 'Explicacion: <span class="estado" style="color: black;">' + expl + '</span>';
+                p_explicacion.id = "p_explicacion";
+                p_explicacion.style.marginBottom = "1rem";
+                p_explicacion.style.fontSize = "0.8rem";
+                
+                // Agregar el contenedor al DOM
+                interactionContainer.append(p_explicacion);
                 //--Indicamos que en contenedor interactionContainer es donde se debe agregar comentarios y archivos para la entrega
-                interactionContainer.innerHTML+="<p id=encabezadoEntrega style='margin-bottom:1rem; color:grey'>Aqui debes hacer la entrega con comentarios</p>"
+                interactionContainer.innerHTML+="<p id=encabezadoEntrega style='margin-bottom:1rem; color:grey'><u>Aqui debes hacer la entrega con comentarios</u></p>"
                 
                 //Le damos formato al iterarion container
                 interactionContainer.classList.add("interaction-container");
@@ -167,6 +183,7 @@ function eventforActivities (obj_actividades,upload_activity,get_all_activities_
                 commentTextarea.style.border = '1px solid #ddd';
                 commentTextarea.style.borderRadius = '0.4rem';
                 commentTextarea.style.resize = 'none';
+                commentTextarea.style.fontSize="0.7rem"
                 interactionContainer.appendChild(commentTextarea);
 
 
@@ -259,6 +276,7 @@ function eventforActivities (obj_actividades,upload_activity,get_all_activities_
         
                             const fileName = document.createElement('span');
                             fileName.textContent = selectedFile.name;
+                            fileName.style.fontSize = '0.7rem';
                             filePreview.appendChild(fileIcon);
                             filePreview.appendChild(fileName);
         
@@ -288,7 +306,7 @@ function eventforActivities (obj_actividades,upload_activity,get_all_activities_
                         estadoSpan.textContent = 'No entregado';
                         estadoSpan.style.color = 'red';
                         actividadDiv.style.height="auto"
-                        interactionContainer.querySelector("#encabezadoEntrega").textContent="Aqui debes hacer la entrega con comentarios"
+                        interactionContainer.querySelector("#encabezadoEntrega").innerHTML="<u>Aqui debes hacer la entrega con comentarios</u>"
                       }
                       catch{
                         alert("No se ha podido borrar la actividad ahora mismo, intentelo mas tarde")
@@ -312,17 +330,42 @@ function eventforActivities (obj_actividades,upload_activity,get_all_activities_
                           previewContainer.style.textAlign="left"
           
                           previewContainer.innerHTML = `
-                              <div style="display: flex; align-items: center; gap: 0.6rem;">
+                              <div id=downloadFile style="display: flex; align-items: center; gap: 0.6rem;">
                                   <span style="font-size:0.8rem">Archivo: </span><span style="font-size: 1.2rem;">${selectedFile.type.startsWith('image/') ? '🖼️' : '📄'}</span>
-                                  <span style="font-size:0.8rem;color:grey"><strong>${selectedFile.name}</strong></span>
+                                  <span style="font-size:0.8rem;color:grey ;word-break: break-all"><strong>${selectedFile.name}</strong></span>
                               </div>
                               <p style="font-size:0.8rem;color:grey"><strong style="color:black">Comentario:</strong> ${comment}</p>
                           `;
+
+                        //   previewContainer.innerHTML = `
+                        //   <div id="downloadFile" style="display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem; margin-bottom: 10px;">
+                        //     <span style="font-size: 0.8rem;">Archivo: </span>
+                        //     <span style="font-size: 1.2rem; color: grey;">
+                        //       ${selectedFile.type.startsWith('image/') ? '🖼️' : '📄'}
+                        //     </span>
+                        //     <span style="font-size: 0.8rem; color: grey; word-break: break-all;">
+                        //       <strong>${selectedFile.name}</strong>
+                        //     </span>
+                        //   </div>
+                        //   <p style="font-size: 0.8rem; color: grey; word-wrap: break-word; margin-top: 5px;">
+                        //     <strong style="color: black;">Comentario:</strong> ${comment}
+                        //   </p>
+                        // `;
+                        
+
                           commentTextarea.style.display = 'none';
                           sendFileButton.style.display="none"
                           selectFileButton.style.display="none"
                           actividadDiv.style.height="auto"
-                          interactionContainer.querySelector("#encabezadoEntrega").textContent="Entrega realizada"
+                          interactionContainer.querySelector("#encabezadoEntrega").innerHTML="<u>Entrega realizada</u>"
+
+                          if (previewContainer.querySelector('#downloadFile')) {
+                            const sendExcerciseElement = previewContainer.querySelector('#downloadFile');
+                            sendExcerciseElement.addEventListener('click', async (event) => {
+                              event.stopPropagation()
+                              await downloadFile(actividad.Actividad,actividad.Tema)
+                            })
+                          }
                         }
                         catch {
                           alert("error al subir el archivo, intentalo de nuevo")
@@ -334,42 +377,66 @@ function eventforActivities (obj_actividades,upload_activity,get_all_activities_
                 });
 
                 if (actividades_user.message) {
-                  const estadoSpan = actividadDiv.querySelector('.estado');
-                  estadoSpan.textContent = 'No entregado';
-                  estadoSpan.style.color = 'red';
+                  console.log("no hay avtividades que mostrar")
                 }
+
+
+
                 else if (actividades_user.some(entrega => entrega.Actividad === actividad.Actividad && entrega.Tema === actividad.Tema)) {
                   const entrega = actividades_user.find(entrega => entrega.Actividad === actividad.Actividad);
 
 
-                      const estadoSpan = actividadDiv.querySelector('.estado');
-                      estadoSpan.textContent = 'Entregado';
-                      estadoSpan.style.color = 'green';
-                      previewContainer.style.textAlign="left"
+                  const estadoSpan = actividadDiv.querySelector('.estado');
+                  estadoSpan.textContent = 'Entregado';
+                  estadoSpan.style.color = 'green';
+                  previewContainer.style.textAlign="left"
 
-                      previewContainer.innerHTML = `
-                      <div style="display: flex; align-items: center; gap: 0.6rem;">
-                          <span style="font-size:0.8rem">Archivo: </span><span style="font-size: 1.2rem; color:grey"> ${entrega.Nombre_archivo.startsWith('image/') ? '🖼️' : '📄'}</span>
-                          <span style="font-size:0.8rem; color:grey"><strong>${entrega.Nombre_archivo}</strong></span>
-                      </div>
-                      <p style="font-size:0.8rem; color:grey"><strong style="color:black">Comentario:</strong> ${entrega.Comentarios}</p>
-                  `;
+                  previewContainer.innerHTML = `
+                  <div id=downloadFile style="display: flex; align-items: center; gap: 0.6rem;">
+                      <span style="font-size:0.8rem">Archivo: </span><span style="font-size: 1.2rem;">${entrega.Nombre_archivo.startsWith('image/') ? '🖼️' : '📄'}</span>
+                      <span style="font-size:0.8rem;color:grey ;word-break: break-all"><strong>${entrega.Nombre_archivo}</strong></span>
+                  </div>
+                  <p style="font-size:0.8rem;color:grey"><strong style="color:black">Comentario:</strong> ${entrega.Comentarios}</p>
+              `;
+              
+                //   previewContainer.innerHTML = `
+                //   <div id="downloadFile" style="display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem; margin-bottom: 10px;">
+                //     <span style="font-size: 0.8rem;">Archivo: </span>
+                //     <span style="font-size: 1.2rem; color: grey;">
+                //       ${entrega.Nombre_archivo.startsWith('image/') ? '🖼️' : '📄'}
+                //     </span>
+                //     <span style="font-size: 0.8rem; color: grey; word-wrap: break-word;">
+                //       <strong>${entrega.Nombre_archivo}</strong>
+                //     </span>
+                //   </div>
+                //   <p style="font-size: 0.8rem; color: grey; word-wrap: break-word; margin-top: 5px;">
+                //     <strong style="color: black;">Comentario:</strong> ${entrega.Comentarios}
+                //   </p>
+                // `;
+                
+                  if (previewContainer.querySelector('#downloadFile')) {
+                    const sendExcerciseElement = previewContainer.querySelector('#downloadFile');
+                    sendExcerciseElement.addEventListener('click', async (event) => {
+                      event.stopPropagation()
+                      await downloadFile(actividad.Actividad,actividad.Tema)
+                    })
+                  }
 
                   commentTextarea.style.display = 'none';
                   sendFileButton.style.display="none"
                   selectFileButton.style.display="none"
                   actividadDiv.style.height="auto"
-                  interactionContainer.querySelector("#encabezadoEntrega").textContent="Entrega realizada"
+                  interactionContainer.querySelector("#encabezadoEntrega").innerHTML="<u>Entrega realizada</u>"
 
                   //Aqui se añade un addevent listener al boton para borrar de la db la entrega
                   
-              }
+                }
 
-              else {
-                const estadoSpan = actividadDiv.querySelector('.estado');
-                estadoSpan.textContent = 'No entregado';
-                estadoSpan.style.color = 'red';
-              }
+                else {
+                  const estadoSpan = actividadDiv.querySelector('.estado');
+                  estadoSpan.textContent = 'No entregado';
+                  estadoSpan.style.color = 'red';
+                }
 
               
               //1.14)Por último pero no menos importante de este primer punto, añadimos

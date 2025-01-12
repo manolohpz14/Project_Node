@@ -8,9 +8,9 @@
 function eventForCalendar (obj_actividades) {
     const monthsLi = document.getElementById('months'); // Obtener el <li> de "Calendario"
     monthsLi.addEventListener('click', function (e) {
-    if  (window.innerWidth<950) {
-    document.getElementById('toggle-sidebar-top').click()
-    }
+    // if  (window.innerWidth<950) {
+    // document.getElementById('toggle-sidebar-top').click()
+    // }
 
     //3.1) Se hace un fetch para obtener las actividades que están creadas y poder señalarlas en el calendario
     // const obj_actividades=[
@@ -204,6 +204,7 @@ function eventForCalendar (obj_actividades) {
             card.textContent = day; // Muestra el día en la tarjeta
 
             // Buscar actividades que coincidan con este día
+            //'2025-01-12' ESTE ES EL FORMATO
             const currentDate = new Date(currentYear, currentMonth, day).toISOString().split('T')[0];
             obj_actividades.forEach(actividad => {
                 if (actividad.Fecha_fin === currentDate) {

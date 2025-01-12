@@ -22,6 +22,7 @@ const ContactosSchema = new Schema({
         unique: true,
         trim: true,
         minlength: [3, "El nombre de usuario debe tener al menos 3 caracteres"],
+        lowercase: true,
     },
     email: {
         type: String,
@@ -127,7 +128,6 @@ const EntregasSchema = new Schema({
     username: {
         type: String,
         required: [true, "El nombre de usuario es obligatorio"],
-        unique: true,
         trim: true,
         minlength: [3, "El nombre de usuario debe tener al menos 3 caracteres"],
     },

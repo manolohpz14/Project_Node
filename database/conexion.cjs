@@ -1,30 +1,32 @@
 const mongoose = require("mongoose");
 const path = require('path');
-const fs = require('fs');
+
 
 async function conexion() {
     try {
-        // const ca = fs.readFileSync(path.join(__dirname, '../ca.crt'));
-        // const cert = fs.readFileSync(path.join(__dirname, '../server.crt'));
-        // const key = fs.readFileSync(path.join(__dirname, '../server.key'));
-
-        // Cadena de conexión MongoDB
         const uri = `mongodb://${process.env.PATH_DB}:27017/ClassProject`;
+        console.log(uri)
+        
 
-        // Conectar a MongoDB con SSL utilizando TLS
-        await mongoose.connect(uri, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-            tls: true,               // Usar TLS (SSL)
-            tlsCAFile: path.join(__dirname, '../ca.crt'), // Ruta al certificado de la CA
-            tlsCertificateKeyFile: path.join(__dirname, '../server_combined.pem'),
-            tlsAllowInvalidCertificates: true
-        });
-    } catch (error) {  
-        console.log(error);
-        console.log("La conexión ha fallado");
+        if (process.env.PATH_DB != "mongo") {
+            // Conexión normal sin opciones avanzadas
+            await mongoose.connect(uri);
+            console.log("Conexión normal establecida con MongoDB");
+        } else {
+            // Conexión con opciones avanzadas (TLS y certificados)
+            await mongoose.connect(uri, {
+                useNewUrlParser: true,
+                useUnifiedTopology: true,
+                tls: true, // Usar TLS (SSL)
+                tlsCAFile: path.join(__dirname, '../ca.crt'), // Ruta al certificado de la CA
+                tlsCertificateKeyFile: path.join(__dirname, '../server_combined.pem'),
+                tlsAllowInvalidCertificates: true
+            });
+            console.log("Conexión avanzada establecida con MongoDB");
+        }
+    } catch (error) {
+        console.error("Error al conectar con MongoDB:", error);
     }
 }
 
 module.exports = { conexion };
-

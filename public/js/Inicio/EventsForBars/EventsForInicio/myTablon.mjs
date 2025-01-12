@@ -1,5 +1,9 @@
-function eventforTablon(upload_message, objeto_foto, objeto, nombre_usuario) {
-  document.querySelector("#TablonDiv").addEventListener("click", function () {
+function eventforTablon(upload_message, objeto_foto, get_all_messages, nombre_usuario) {
+  document.querySelector("#TablonDiv").addEventListener("click", async function () {
+    const objeto = await get_all_messages();
+    if (objeto) {
+      console.log(objeto); // Aquí tienes acceso a photosArray
+    }
     let grid = document.querySelector(".grid");
     grid.style.transition = "transform 0.3s ease-out";
     grid.style.transform = "translateX(-250vw)";
@@ -53,7 +57,7 @@ function eventforTablon(upload_message, objeto_foto, objeto, nombre_usuario) {
         div.append(div_conatainer);
       }
       const textarea = document.createElement("textarea");
-      textarea.style.width = "90%";
+      textarea.style.width = "100%";
       textarea.style.resize = "none"; // Evitar que el usuario redimensione el textarea
       textarea.style.marginTop = "1rem";
       textarea.style.color = "rgb(72, 72, 72)";
@@ -210,6 +214,7 @@ function eventforTablon(upload_message, objeto_foto, objeto, nombre_usuario) {
           div.append(div_container);
 
           const texto = document.createElement("p");
+          texto.style.marginTop="1rem"
           texto.textContent = persona.texto;
           div.append(texto);
 

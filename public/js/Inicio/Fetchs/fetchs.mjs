@@ -67,9 +67,34 @@ try {
 }
 }
 
+async function downloadFile(actividad,tema) {
+    try {
+        // Realizar una solicitud GET al servidor para descargar el archivo
+        const response = await fetch(
+        `/downloadFile?actividad=${encodeURIComponent(actividad)}&tema=${encodeURIComponent(tema)}`
+    );
+        if (!response.ok) {
+            throw new Error('Error al descargar el archivo');
+        }
+
+        // Si la respuesta es correcta, obtener el archivo como un Blob (lo que significa que es un archivo binario)
+        const blob = await response.blob(); // Esta línea convierte la respuesta a un archivo binario
+
+        // Crear una URL para el archivo Blob
+        const url = window.URL.createObjectURL(blob);
+
+        // Usar window.open directamente para abrir el archivo en una nueva ventana o pestaña
+        window.open(url, '_blank');  // Aquí abrimos la URL en una nueva ventana o pestaña
+
+        // Revocar la URL para liberar memoria
+        window.URL.revokeObjectURL(url);
 
 
 
+    } catch  {
+        alert('Hubo un error al descargar el archivo. Intenta nuevamente.');
+    }
+}
 
 async function get_all_messages() {
 try {
@@ -111,7 +136,7 @@ async function get_all_activities_user() {
     
         // Verificar si la respuesta es exitosa
         if (!response.ok) {
-            throw new Error('No se pudo obtener los mensajes');
+            throw new Error('No se pudo obtener lac actividades');
         }
     
         // Procesar la respuesta como JSON
@@ -262,4 +287,4 @@ async function deleteActivityAndFile(actividad, tema) {
 
 export {getCookie, get_all_photo,last_conexion,get_all_messages,upload_message,
     set_full_time_at_page,get_full_time_at_page,get_all_activities,upload_activity,
-    get_all_activities_user,deleteActivityAndFile}
+    get_all_activities_user,deleteActivityAndFile,downloadFile}

@@ -45,7 +45,7 @@ function eventforTopBar(username,photosArray) {
 
     // Crear la imagen
     const img_doc = document.createElement("img");
-    img_doc.style.width = "30rem";
+    img_doc.style.width = "30vw";
     img_doc.style.borderRadius = "8px"; // Bordes redondeados, opcional
     img_doc.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.2)"; // Sombra para mejor estética
     img_doc.style.opacity = "0"; // Inicia transparente

@@ -34,7 +34,7 @@ function eventForStats(Chart, get_full_time_at_page) {
         canvas.style.width = "100%"; // El canvas ocupa el 100% del ancho
         canvas.style.height = "auto"; // La altura se ajusta automáticamente
         div.style.height = "70vh";
-        div.style.width = "90%";
+        div.style.width = "100%";
         div.style.margin = "auto";
         div.appendChild(canvas);
         grid.appendChild(div); // Añadir el canvas al grid
@@ -65,7 +65,7 @@ function eventForStats(Chart, get_full_time_at_page) {
                         labels: {
                             color: 'rgb(0, 0, 0)', // Color del texto de la leyenda
                             font: {
-                                size: 14
+                                size: 10
                             }
                         }
                     },
@@ -83,7 +83,7 @@ function eventForStats(Chart, get_full_time_at_page) {
                         ticks: {
                             color: 'rgb(0, 0, 0)', // Color de las etiquetas
                             font: {
-                                size: 12
+                                size: 8
                             }
                         },
                         title: {
@@ -91,7 +91,7 @@ function eventForStats(Chart, get_full_time_at_page) {
                             text: 'Minutos Conectados',
                             color: 'rgb(0, 0, 0)',
                             font: {
-                                size: 14,
+                                size: 12,
                                 weight: 'bold'
                             }
                         }
@@ -103,7 +103,7 @@ function eventForStats(Chart, get_full_time_at_page) {
                         ticks: {
                             color: 'rgb(0, 0, 0)', // Color de las etiquetas
                             font: {
-                                size: 12
+                                size: 10
                             }
                         }
                     }

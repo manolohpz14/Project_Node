@@ -1,7 +1,7 @@
 
 services:
   node:
-    image: contendor_node2 #Oye, hazme la imagen de node a partir de mi Dockerfile
+    build: . #Oye, hazme la imagen de node a partir de mi Dockerfile
     restart: always
     container_name: contendor_node
     ports:

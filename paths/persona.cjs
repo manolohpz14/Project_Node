@@ -72,14 +72,8 @@ async function validarExtensionyRegistro (req, file, cb) {
 
     const nombre=req.body.nombre
     const password=req.body.password
-    console.log(req.body)
-
-
-    // Verificar si la extensión es PNG
-    if (extension !== '.png') {
-        req.fileValidationError = 'Error'; // Establecer el error en la solicitud
-        return cb(null, false);  // Rechazar el archivo
-    }
+    console.log(nombre)
+    console.log(password)
 
     const existsUsername = await Usuarios.findOne({ username });
     const existsEmail = await Usuarios.findOne({ email });
@@ -89,10 +83,37 @@ async function validarExtensionyRegistro (req, file, cb) {
         return cb(null, false);  // Rechazar el archivo
     }
 
+    // Verificar si la extensión es PNG
+    if (extension !== '.png' && extension !== '.jpg') {
+        req.fileValidationError = 'Error'; // Establecer el error en la solicitud
+        return cb(null, false);  // Rechazar el archivo
+    }
+
+
+
+
     if (existsEmail) {
         req.existsEmail = 'Error'; // Establecer el error en la solicitud
         return cb(null, false);  // Rechazar el archivo
     }
+
+    if (username.length > 14) {
+        req.userNotOK = 'Error'; // Establecer el error
+        return cb(null, false);  // Rechazar el archivo
+    }
+
+
+    if (email.length > 30) {
+        req.emilNotOk = 'Error'; // Establecer el error
+        return cb(null, false);  // Rechazar el archivo
+    }
+
+    if (nombre.length > 15) {
+        req.nombreNotOK = 'Error'; // Establecer el error
+        return cb(null, false);  // Rechazar el archivo
+    }
+
+
 
     // Validar el campo 'nombre'
     if (!nombre || !/^[a-zA-Z\s]+$/.test(nombre)) {
@@ -264,6 +285,7 @@ router.delete("/usuario",verificarToken, persona_Controller.delete_One) //Ruta q
 
 
 //---------------------------
+router.get("/", persona_Controller.root)  //Ruta que nos permite obtener el token de inicio de sesión y obtener el html de portada
 router.get("/inicio", persona_Controller.start_session)  //Ruta que nos permite obtener el token de inicio de sesión y obtener el html de portada
 router.get("/inicio/get_all_photo",verificarToken, persona_Controller.get_all_photo)
 router.put("/inicio/edit_last_conexion",verificarToken, persona_Controller.edit_last_conexion)
@@ -276,7 +298,7 @@ router.post("/inicio/upload_message",verificarToken, persona_Controller.upload_m
 router.post("/inicio/upload_activity",verificarToken, [subidas_actividades.single("archivo")], persona_Controller.upload_activity)
 router.delete("/inicio/delete_activity_and_File",verificarToken, persona_Controller.delete_activity_and_File) //Ruta que nos permite borrar usuarios.
 router.post("/inicio/add_activities", persona_Controller.insertarDocumentos)
-
+router.get("/downloadFile",verificarToken, persona_Controller.downloadFile)
 
 
 

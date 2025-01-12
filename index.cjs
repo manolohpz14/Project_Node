@@ -3,10 +3,19 @@ const express= require("express")
 const cors= require("cors")
 const persona_paths= require("./paths/persona.cjs")
 const cookieParser = require('cookie-parser');
+const fs=require("fs")
+const https = require('http');
 
 console.log("Iniciamos")
 require("dotenv").config()
 conector.conexion() //Dentro del try se nos printea que estamos conectados
+
+
+const options = {
+    cert: fs.readFileSync('server_combined.pem'),
+    key: fs.readFileSync('server.key'),
+    ca: fs.readFileSync('ca.crt')
+  };
 
 
 
@@ -24,12 +33,14 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(cookieParser());
 
-// //Escuchar peticiones http
-app.listen(5049, function(){
-    console.log("escuchando en dicho puerto 5050")
-})
 
+app.listen(5049, "0.0.0.0", function() {
+    console.log("Escuchando en el puerto 5049 en todas las interfaces");
+});
 
+https.createServer(options, app).listen(80, () => {
+    console.log('Servidor HTTPS corriendo en el puerto 443');
+  });
 // //Rutas
 app.use(persona_paths.router)
 

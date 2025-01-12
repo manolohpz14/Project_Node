@@ -4,15 +4,15 @@ import { eventforTablon } from "./EventsForInicio/myTablon.mjs";
 import { eventforActivities } from "./EventsForInicio/myActividades.mjs";
 
 
-function EventsforInicio (upload_message,objeto_foto,objeto,obj_actividades,nombre_usuario,upload_activity,get_all_activities_user,delete_activity_and_File) {
-  eventforTablon(upload_message,objeto_foto,objeto,nombre_usuario)
-  eventforActivities(obj_actividades,upload_activity,get_all_activities_user,delete_activity_and_File)
+function EventsforInicio (upload_message,objeto_foto,get_all_messages,obj_actividades,nombre_usuario,upload_activity,get_all_activities_user,delete_activity_and_File,downloadFile) {
+  eventforTablon(upload_message,objeto_foto,get_all_messages,nombre_usuario)
+  eventforActivities(obj_actividades,upload_activity,get_all_activities_user,delete_activity_and_File,downloadFile)
 }
 
 
 
 
-function eventforInicio (upload_message,objeto_foto,objeto,obj_actividades,nombre_usuario,upload_activity,get_all_activities_user,delete_activity_and_File) {
+function eventforInicio (upload_message,objeto_foto,get_all_messages,obj_actividades,nombre_usuario,upload_activity,get_all_activities_user,delete_activity_and_File,downloadFile) {
   const inicio=document.querySelector("#inicio")
   inicio.addEventListener("click",async function () {
     const grid = document.querySelector('.grid');
@@ -51,7 +51,7 @@ function eventforInicio (upload_message,objeto_foto,objeto,obj_actividades,nombr
 
     const gridDiv = document.querySelector('.grid');
     mainContent.insertBefore(navBar, gridDiv);
-    EventsforInicio (upload_message,objeto_foto,objeto,obj_actividades,nombre_usuario,upload_activity,get_all_activities_user,delete_activity_and_File)
+    EventsforInicio (upload_message,objeto_foto,get_all_messages,obj_actividades,nombre_usuario,upload_activity,get_all_activities_user,delete_activity_and_File,downloadFile)
     tablondiv.click()
     const listItems_main = document.querySelectorAll('.main-content-options');
 

@@ -305,6 +305,7 @@ async function create(req, res) {
     try {
         // Validamos los campos `nombre` y `apellidos` usando validator
         let evalue_title = validator.isEmpty(parametros.username);
+        console.log(req.body)
 
         if (evalue_title === true) {
             throw new Error("No se ha validado la información");
@@ -320,6 +321,7 @@ async function create(req, res) {
         });
     }
 
+    console.log(req.fileValidationError)
     if (req.fileValidationError === 'Error'){
         console.log(req.fileValidationError)
         return res.status(400).json({
@@ -328,7 +330,7 @@ async function create(req, res) {
         })
     }
 
-
+    console.log(req.existsUsername)
     if (req.existsUsername){
         console.log(req.userRepit)
         return res.status(400).json({
@@ -337,7 +339,7 @@ async function create(req, res) {
         })
     }
     
-
+    console.log(req.existsEmail)
     if (req.existsEmail){
         console.log(req.gmailRepit)
         return res.status(400).json({
@@ -346,34 +348,35 @@ async function create(req, res) {
         })
     }
 
-
+    console.log(req.userNotOK)
     if (req.userNotOK){
         console.log(req.userNotOK)
         return res.status(400).json({
             status: "error",
-            message: "El nombre de usuario debe tener al menos 3 letras sin espacios y solo mayúsculas y minúsculas",
+            message: "El nombre de usuario debe tener al menos 3 letras sin espacios y solo mayúsculas y minúsculas y menos de 14 caracteres",
         })
     }
 
-
+    console.log(req.nombreNotOK)
     if (req.nombreNotOK){
         console.log(req.nombreNotOK)
         return res.status(400).json({
             status: "error",
-            message: "El nombre de la persona debe tener al menos 3 letras sin espacios y solo mayúsculas y minúsculas",
+            message: "El nombre de la persona debe tener al menos 3 letras sin espacios y solo mayúsculas y minúsculas y menos de 15 caracteres",
         })
     }
     
     
-
+    console.log(req.emilNotOk)
     if (req.emilNotOk){
         console.log(req.emilNotOk)
         return res.status(400).json({
             status: "error",
-            message: "El email debe tener extension educaand y al menos 4 caracteres delante del @",
+            message: "El email debe tener extension educaand, al menos 4 caracteres delante del @ y menos de 30 caracteres",
         })
     }
 
+    console.log(req.passwordNotOk)
     if (req.passwordNotOk){
         console.log(req.passwordNotOk)
         return res.status(400).json({
@@ -461,7 +464,7 @@ async function start_session (req, res) {
         res.cookie('token', token, {
             httpOnly: true,
             expires: new Date(Date.now() + 60 * 60 * 1000), // 1 hora
-            secure: true,  // Cambiar a true si estás usando HTTPS
+            secure: false,  // Cambiar a true si estás usando HTTPS
             sameSite: "lax"
         });
 
@@ -469,7 +472,7 @@ async function start_session (req, res) {
         res.cookie('username', persona.username, {
             httpOnly: false,  // Evitar que JavaScript acceda a la cookie
             expires: new Date(Date.now() + 60 * 60 * 1000), // 1 hora
-            secure: true,  // Cambiar a true si estás usando HTTPS
+            secure: false,  // Cambiar a true si estás usando HTTPS
             sameSite: "lax"
         });
 
@@ -485,7 +488,61 @@ async function start_session (req, res) {
     }
 }
 
+function root (req,res) {
+    const rutaBase = path.resolve(__dirname, '..'); // Obtiene la ruta base
+    console.log(rutaBase);
+    res.status(200).sendFile(path.join(rutaBase, 'public', 'portada.html'));
+}
 
+
+
+
+
+async function downloadFile(req, res) {
+    try {
+        // Obtener el nombre de usuario desde las cookies
+        const username = req.cookies["username"];
+
+        // Validar que el nombre de usuario exista
+        if (!username) {
+            return res.status(400).json({ error: 'El nombre del usuario no existe.' });
+        }
+
+        // Obtener los parámetros de consulta
+        const { actividad, tema } = req.query;
+
+        // Validar que los parámetros actividad y tema estén presentes
+        if (!actividad || !tema) {
+            return res.status(400).json({ error: 'Faltan parámetros requeridos (actividad o tema).' });
+        }
+
+        // Buscar el archivo en la base de datos basado en username, actividad y tema
+        const activity = await Actividades_entregadas.findOne({
+            username: username,
+            Actividad: actividad,
+            Tema: tema,
+        });
+
+        if (!activity) {
+            return res.status(404).json({ error: 'Archivo no encontrado para el usuario, actividad y tema especificados.' });
+        }
+
+        // Obtener la ruta absoluta del archivo
+        const filePath = activity.Nombre_archivo;
+
+        // Enviar el archivo al cliente para la descarga
+        //res.download(path [, filename] [, options] [, callback])
+        res.download(filePath, path.basename(filePath), (err) => {
+            if (err) {
+                console.error('Error al enviar el archivo:', err);
+                res.status(500).json({ error: 'No se pudo descargar el archivo.' });
+            }
+        });
+    } catch (error) {
+        console.error('Error al manejar la solicitud de descarga:', error);
+        res.status(500).json({ error: 'Error interno del servidor.' });
+    }
+}
 
 
 const calculate_minutes_connected = async (req, res) => {
@@ -719,6 +776,7 @@ async function get_all_photo(req, res) {
 
 
 module.exports={
+    root,
     create,
     start_session,
     edit_last_conexion,
@@ -733,7 +791,8 @@ module.exports={
     upload_activity,
     get_all_activities_user,
     delete_activity_and_File,
-    insertarDocumentos
+    insertarDocumentos,
+    downloadFile
     
     
 }

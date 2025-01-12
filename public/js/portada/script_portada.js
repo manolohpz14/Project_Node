@@ -301,86 +301,86 @@ document.querySelector("#images_container").addEventListener("click", function()
 
 
     
-    document.querySelector("#passwordforgot").addEventListener("click", function(){
-        popUp()
-        let texto=document.createElement("h2")
-        texto.style.fontFamily = "'Arial', sans-serif"; // Fuente moderna
-        texto.textContent="Cambia tu contraseña"
-        texto.style.fontSize="1.5rem"
-        texto.color="white"
-        document.querySelector("#div_absolute_poppup").append(texto)
-        createform({
-            id: "loginForm",
-            action: "/submit",
-            method: "POST",
-            fields: [
-                {
-                    type: "text",
-                    id: "username",
-                    placeholder: "Nombre de usuario",
-                    required: true
-                },
-                {
-                    type: "password",
-                    id: "password_old",
-                    placeholder: "Contraseña actual",
-                    required: true
-                },
+    // document.querySelector("#passwordforgot").addEventListener("click", function(){
+    //     popUp()
+    //     let texto=document.createElement("h2")
+    //     texto.style.fontFamily = "'Arial', sans-serif"; // Fuente moderna
+    //     texto.textContent="Cambia tu contraseña"
+    //     texto.style.fontSize="1.5rem"
+    //     texto.color="white"
+    //     document.querySelector("#div_absolute_poppup").append(texto)
+    //     createform({
+    //         id: "loginForm",
+    //         action: "/submit",
+    //         method: "POST",
+    //         fields: [
+    //             {
+    //                 type: "text",
+    //                 id: "username",
+    //                 placeholder: "Nombre de usuario",
+    //                 required: true
+    //             },
+    //             {
+    //                 type: "password",
+    //                 id: "password_old",
+    //                 placeholder: "Contraseña actual",
+    //                 required: true
+    //             },
 
-                {
-                    type: "password",
-                    id: "password",
-                    placeholder: "Nueva contraseña",
-                    required: true
-                },
-                {
-                    type: "password",
-                    id: "repit_password_old",
-                    placeholder: "Repite tu contraseña nueva",
-                    required: true
-                },
-            ],
-            submitText: "Cambiar contraseña",
-            targetContainer: "#div_absolute_poppup" // ID del contenedor donde se añadirá el formulario
-        });
-        let texto_plano=document.createElement("p")
-        texto_plano.textContent="¡Recuerda introducir una contraseña segura!"
-        texto_plano.style.fontSize="1.2rem"
-        texto_plano.color="white"
-        document.querySelector("#div_absolute_poppup").style.paddingBottom="0px"
-        document.querySelector("#div_absolute_poppup").append(texto_plano)
+    //             {
+    //                 type: "password",
+    //                 id: "password",
+    //                 placeholder: "Nueva contraseña",
+    //                 required: true
+    //             },
+    //             {
+    //                 type: "password",
+    //                 id: "repit_password_old",
+    //                 placeholder: "Repite tu contraseña nueva",
+    //                 required: true
+    //             },
+    //         ],
+    //         submitText: "Cambiar contraseña",
+    //         targetContainer: "#div_absolute_poppup" // ID del contenedor donde se añadirá el formulario
+    //     });
+    //     let texto_plano=document.createElement("p")
+    //     texto_plano.textContent="¡Recuerda introducir una contraseña segura!"
+    //     texto_plano.style.fontSize="1.2rem"
+    //     texto_plano.color="white"
+    //     document.querySelector("#div_absolute_poppup").style.paddingBottom="0px"
+    //     document.querySelector("#div_absolute_poppup").append(texto_plano)
 
-        let texto_plano_2 = document.createElement("p");
-        texto_plano_2.style.fontSize = "1rem";
-        texto_plano_2.style.color = "red";
-        texto_plano_2.style.marginTop = "1rem";
-        document.querySelector("#div_absolute_poppup").append(texto_plano_2);
+    //     let texto_plano_2 = document.createElement("p");
+    //     texto_plano_2.style.fontSize = "1rem";
+    //     texto_plano_2.style.color = "red";
+    //     texto_plano_2.style.marginTop = "1rem";
+    //     document.querySelector("#div_absolute_poppup").append(texto_plano_2);
 
 
-    let passwordInput = document.querySelector("#password");
-    let repeatPasswordInput = document.querySelector("#repit_password_old");
-    repeatPasswordInput.addEventListener("input", function () {
-        // Verificar si algún campo está vacío
-        if (passwordInput.value === "" || repeatPasswordInput.value === "") {
-            texto_plano_2.textContent = ""; // Limpiar el mensaje
-        } 
-        // Verificar si las contraseñas no coinciden
-        else if (passwordInput.value !== repeatPasswordInput.value) {
-            texto_plano_2.textContent = "Las contraseñas no coinciden. Por favor, revisa.";
-            texto_plano_2.style.color = "red"; // Cambiar el color del mensaje
-        } 
-        // Las contraseñas coinciden
-        else {
-            texto_plano_2.textContent = "¡Las contraseñas coinciden!";
-            texto_plano_2.style.color = "green"; // Cambiar el color del mensaje
-        }
-    });
+    // let passwordInput = document.querySelector("#password");
+    // let repeatPasswordInput = document.querySelector("#repit_password_old");
+    // repeatPasswordInput.addEventListener("input", function () {
+    //     // Verificar si algún campo está vacío
+    //     if (passwordInput.value === "" || repeatPasswordInput.value === "") {
+    //         texto_plano_2.textContent = ""; // Limpiar el mensaje
+    //     } 
+    //     // Verificar si las contraseñas no coinciden
+    //     else if (passwordInput.value !== repeatPasswordInput.value) {
+    //         texto_plano_2.textContent = "Las contraseñas no coinciden. Por favor, revisa.";
+    //         texto_plano_2.style.color = "red"; // Cambiar el color del mensaje
+    //     } 
+    //     // Las contraseñas coinciden
+    //     else {
+    //         texto_plano_2.textContent = "¡Las contraseñas coinciden!";
+    //         texto_plano_2.style.color = "green"; // Cambiar el color del mensaje
+    //     }
+    // });
     
 
-    });
+    // });
 
 
-    const buttons = document.querySelectorAll('.buttonClass1, .buttonClass2');
+    const buttons = document.querySelectorAll('.buttonClass1');
 
     // Agregar el efecto al pasar el mouse sobre los botones
     buttons.forEach(button => {

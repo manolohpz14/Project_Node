@@ -4,13 +4,17 @@ import { eventForUser } from "./EventsForBars/myUsers.mjs";
 import { eventForStats } from "./EventsForBars/myCharts.mjs";
 import { eventforTopBar } from "./EventsForBars/myTopBar.mjs";
 import {getCookie, get_all_photo,last_conexion,get_all_messages,upload_message,set_full_time_at_page,
-  get_full_time_at_page,get_all_activities,upload_activity,get_all_activities_user,deleteActivityAndFile} from "./Fetchs/fetchs.mjs"
+  get_full_time_at_page,get_all_activities,upload_activity,get_all_activities_user,deleteActivityAndFile,downloadFile} from "./Fetchs/fetchs.mjs"
 import Chart from 'chart.js/auto'
 
 
-document.addEventListener("DOMContentLoaded", async function(){ 
+document.addEventListener("DOMContentLoaded", async function(){
 
+  let sidebarContent = document.getElementById('sidebar').innerHTML; // Almacena el contenido inicial del sidebar
+  let open_bar = true; // Estado de visibilidad del sidebar
+  handleSidebarContent()
 
+  
   const username=getCookie("username")
 
 
@@ -23,12 +27,8 @@ document.addEventListener("DOMContentLoaded", async function(){
       console.log(photosArray); // Aquí tienes acceso a photosArray
     }
 
-  const mensajes = await get_all_messages();
-    if (mensajes) {
-      console.log(mensajes); // Aquí tienes acceso a photosArray
-    }
 
-    const obj_actividades = await get_all_activities();
+  const obj_actividades = await get_all_activities();
     if (obj_actividades) {
       console.log(obj_actividades); // Aquí tienes acceso a photosArray
     }
@@ -46,7 +46,7 @@ document.addEventListener("DOMContentLoaded", async function(){
 
   //--------------Aqui meto los addeventListeners de cada sideBar-------------
   function my_listeners_sidebar(){
-    eventforInicio(upload_message,photosArray,mensajes, obj_actividades,username,upload_activity,get_all_activities_user,deleteActivityAndFile)
+    eventforInicio(upload_message,photosArray,get_all_messages, obj_actividades,username,upload_activity,get_all_activities_user,deleteActivityAndFile,downloadFile)
     eventForCalendar(obj_actividades)
     eventForUser(photosArray)
     eventForStats(Chart,get_full_time_at_page)
@@ -59,9 +59,6 @@ document.addEventListener("DOMContentLoaded", async function(){
 
 
 
-
-  let sidebarContent = document.getElementById('sidebar').innerHTML; // Almacena el contenido inicial del sidebar
-  let open_bar = true; // Estado de visibilidad del sidebar
 
 
 
@@ -101,7 +98,6 @@ document.addEventListener("DOMContentLoaded", async function(){
         const sidebarLinks = document.querySelectorAll('.sidebar a'); // Selecciona todos los enlaces dentro de .sidebar
 
         sidebar.innerHTML = sidebarContent; // Restaurar contenido inicial
-        my_listeners_sidebar()
 
         // Pantalla mayor o igual a 950px: muestra texto y restaura imágenes
         sidebar.style.width = "10rem";
@@ -127,7 +123,6 @@ document.addEventListener("DOMContentLoaded", async function(){
   }
 
 
-handleSidebarContent();
 
 
 
@@ -158,6 +153,23 @@ function toggleSidebar() {
       sidebarLinks_ul.style.marginTop="0rem"
       sidebar.style.textAlign="left";
       main_content.style.marginLeft="2rem"
+
+
+      const sidebarLinks_li = sidebarLinks_ul.querySelectorAll('li');
+      sidebarLinks_li.forEach(link => {
+        link.style.visibility = 'hidden'; // Establecer como invisible al principio
+        link.style.opacity = '0'; // Establecer opacidad 0 para ocultarlo completamente
+        link.style.transition = 'opacity 0.3s ease, visibility 0.2s linear'; // Agregar una transición suave
+      });
+      
+      // Mostrar los elementos después de 0.2 segundos
+      setTimeout(() => {
+        sidebarLinks_li.forEach(link => {
+          link.style.visibility = 'visible'; // Hacerlo visible
+          link.style.opacity = '1'; // Establecer opacidad 1 para hacerlo visible
+        });
+      }, 200); // 200 milisegundos de retraso
+
         
       
       // Ocultar texto de los enlaces
@@ -197,12 +209,14 @@ function toggleSidebar() {
       my_listeners_sidebar()
       sidebar = document.querySelector('.sidebar'); // Selecciona la sidebar
       const sidebarLinks_ul = document.querySelector('.sidebar-links'); // Seleccionar ul
-
+      
       sidebarLinks_ul.style.marginTop = "1.5rem"; // Ajustar estilo
       sidebar.style.textAlign = "center"; // Centrar contenido
-
-      main_content.style.width="90vw"
-
+      
+      main_content.style.width = "90vw";
+      
+      // Ocultar los elementos <li> al principio
+      
       open_bar = true; // Actualizar estado
   } 
   // Si la pantalla es mayor o igual a 950px y el menú está abierto, ciérralo
