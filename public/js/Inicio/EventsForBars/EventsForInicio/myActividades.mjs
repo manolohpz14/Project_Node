@@ -3,7 +3,7 @@ function eventforActivities (obj_actividades,upload_activity,get_all_activities_
 
     document.querySelector("#ActivitiesDiv").addEventListener("click", async function() {
       let grid = document.querySelector(".grid");
-      grid.style.transition = "transform 0.3s ease-out";
+      grid.style.transition = "transform 0.5s ease-out";
       grid.style.transform = "translateX(250vw)";
       grid.style.overflow = "hidden";
 
@@ -462,7 +462,7 @@ function eventforActivities (obj_actividades,upload_activity,get_all_activities_
         grid.appendChild(actividadesContainer);
     });
     grid.style.transform = "";
-  },300)
+  },250)
 
   })
 

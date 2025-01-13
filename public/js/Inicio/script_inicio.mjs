@@ -10,10 +10,10 @@ import Chart from 'chart.js/auto'
 
 document.addEventListener("DOMContentLoaded", async function(){
 
-  let sidebarContent = document.getElementById('sidebar').innerHTML; // Almacena el contenido inicial del sidebar
+  
   let open_bar = true; // Estado de visibilidad del sidebar
-  handleSidebarContent()
-
+  //handleSidebarContent()
+  initSidebarResponsive();
   
   const username=getCookie("username")
 
@@ -63,65 +63,49 @@ document.addEventListener("DOMContentLoaded", async function(){
 
 
   //-------------------Media Query en JS-----------------------//
-  function handleSidebarContent() {
+  function initSidebarResponsive() {
+    const sidebar = document.getElementById('sidebar');
+    const central_content = document.querySelector('.central_content');
     const mediaQuery = window.matchMedia('(max-width: 950px)');
+    let mainContent = document.querySelector('.main-content');
 
-    // Función para mostrar/ocultar texto e imágenes
-    function toggleContent() {
-
-    
-      //si el ancho es menor que 950, oculta la foro y la descripcion de los iconos
-      if (mediaQuery.matches && open_bar===true)  {
-        const sidebar = document.querySelector('.sidebar'); // Selecciona la sidebar
-        const sidebarLinks_ul = document.querySelector('.sidebar-links') //Selecionamos la etiqueta ul
-        const sidebarLinks = document.querySelectorAll('.sidebar a'); // Selecciona todos los enlaces dentro de .sidebar
-        // Pantalla menor a 950px: oculta texto y elimina imágenes
-        sidebar.style.width = "2rem";
-        sidebarLinks_ul.style.marginTop="0rem"
-        sidebar.style.textAlign="left";
-        const main_content = document.querySelector('.main-content'); 
-        main_content.style.marginLeft="2rem"
-  
-        // Oculta los enlaces
-        Array.from(sidebarLinks).forEach(link => {
-          console.log(link)
-          link.style.opacity = '0'; // Hace que el texto desaparezca
-        });
-  
-
-
-
-        //si el ancho es mayor que 950, devuelve a la forma original tanto el texto como la foto
-      } else if(!mediaQuery.matches && open_bar===true) {
-        const sidebar = document.querySelector('.sidebar'); // Selecciona la sidebar
-        const sidebarLinks_ul = document.querySelector('.sidebar-links') //Selecionamos la etiqueta ul
-        const sidebarLinks = document.querySelectorAll('.sidebar a'); // Selecciona todos los enlaces dentro de .sidebar
-
-        sidebar.innerHTML = sidebarContent; // Restaurar contenido inicial
-
-        // Pantalla mayor o igual a 950px: muestra texto y restaura imágenes
-        sidebar.style.width = "10rem";
-        sidebarLinks_ul.style.marginTop="2rem"
-        sidebar.style.textAlign="center";
-        const main_content = document.querySelector('.main-content'); 
-        main_content.style.marginLeft="10rem"
-  
-        // Muestra los enlaces
-        sidebarLinks.forEach(link => {
-          link.style.opacity = '1'; // Restaura el texto
-        });
+    const handleSidebarMode = (e) => {
+        if (e.matches && open_bar==false) {
+            // Pantalla menor de 950px
+            sidebar.classList.add('horizontal');
+            central_content.classList.add('vertical')
+            mainContent.classList.add('expanded'); 
+        } else if (!e.matches && open_bar==false) {
+            // Pantalla mayor o igual a 950px
+            sidebar.classList.remove('horizontal');
+            central_content.classList.remove('vertical')
+            mainContent.classList.add('expanded'); 
+        }
+        else if (e.matches && open_bar==true) {
+          // Pantalla mayor o igual a 950px
+          sidebar.classList.add('horizontal');
+          central_content.classList.add('vertical')
+          mainContent.classList.add('expanded'); 
+          mainContent.classList.add('margin_top')
       }
-
-      
+      else if (!e.matches && open_bar==true) {
+        // Pantalla mayor o igual a 950px
+        sidebar.classList.remove('horizontal');
+        central_content.classList.remove('vertical')
+        mainContent.classList.remove('expanded'); 
+        mainContent.classList.remove('margin_top')
     }
-  
-    // Llama a la función al cargar la página
-    toggleContent();
-  
-    // Escucha los cambios de la media query
-    mediaQuery.addEventListener('change', toggleContent);
-  }
 
+    };
+
+    // Ejecuta la función al cargar la página
+    handleSidebarMode(mediaQuery);
+
+    // Escucha los cambios de la media query
+    mediaQuery.addEventListener('change', handleSidebarMode);
+}
+
+// Llama a la función cuando necesites inicializar
 
 
 
@@ -134,101 +118,41 @@ document.addEventListener("DOMContentLoaded", async function(){
 
 //-------------------Barra lateral ajustar según media-Query-----------------------// 
 function toggleSidebar() {
-  const windowWidth = window.innerWidth;
+  const mediaQuery = window.matchMedia('(max-width: 950px)')
 
-  // Si la pantalla es menor de 950px y el menú está cerrado, ábrelo
-  if (windowWidth < 950 && open_bar === false) {
-      let sidebar = document.getElementById('sidebar');
-      // Seleccionar elementos necesarios para la manipulación
-      sidebar.innerHTML = sidebarContent; // Restaurar contenido inicial
-      my_listeners_sidebar()
-
-      sidebar = document.querySelector('.sidebar'); 
-      const sidebarLinks_ul = document.querySelector('.sidebar-links'); 
-      const main_content = document.querySelector('.main-content'); 
-
-      const sidebarLinks = document.querySelectorAll('.sidebar a'); 
-      
-      sidebar.style.width = "2rem";
-      sidebarLinks_ul.style.marginTop="0rem"
-      sidebar.style.textAlign="left";
-      main_content.style.marginLeft="2rem"
-
-
-      const sidebarLinks_li = sidebarLinks_ul.querySelectorAll('li');
-      sidebarLinks_li.forEach(link => {
-        link.style.visibility = 'hidden'; // Establecer como invisible al principio
-        link.style.opacity = '0'; // Establecer opacidad 0 para ocultarlo completamente
-        link.style.transition = 'opacity 0.3s ease, visibility 0.2s linear'; // Agregar una transición suave
-      });
-      
-      // Mostrar los elementos después de 0.2 segundos
-      setTimeout(() => {
-        sidebarLinks_li.forEach(link => {
-          link.style.visibility = 'visible'; // Hacerlo visible
-          link.style.opacity = '1'; // Establecer opacidad 1 para hacerlo visible
-        });
-      }, 200); // 200 milisegundos de retraso
-
-        
-      
-      // Ocultar texto de los enlaces
-      Array.from(sidebarLinks).forEach(link => {
-          link.style.opacity = '0'; // Ocultar texto
-      });
-
-
-      main_content.style.width="90vw"
-
-        open_bar = true; // Actualizar estado
-  } 
-  // Si la pantalla es menor de 950px y el menú está abierto, ciérralo
-  else if (windowWidth < 950 && open_bar === true) {
-      const sidebar = document.querySelector('.sidebar'); // Selecciona la sidebar
-    
-      sidebar.style.width = '0';
-      sidebar.style.padding = '0';
-      sidebar.innerHTML = ""; // Vaciar el contenido
-      open_bar = false; // Actualizar estado
-      const main_content=document.querySelector(".main-content")
-      main_content.style.width="100vw"
-      main_content.style.marginLeft="0rem"
-  } 
-  // Si la pantalla es mayor o igual a 950px y el menú está cerrado, ábrelo
-  else if (open_bar === false) {
-
-
-    
-      let sidebar = document.getElementById('sidebar');
-      sidebar.style.width = '10rem';
-      const main_content=document.querySelector(".main-content")
-      main_content.style.marginLeft="10rem"
-
-
-      sidebar.innerHTML = sidebarContent; // Restaurar contenido inicial
-      my_listeners_sidebar()
-      sidebar = document.querySelector('.sidebar'); // Selecciona la sidebar
-      const sidebarLinks_ul = document.querySelector('.sidebar-links'); // Seleccionar ul
-      
-      sidebarLinks_ul.style.marginTop = "1.5rem"; // Ajustar estilo
-      sidebar.style.textAlign = "center"; // Centrar contenido
-      
-      main_content.style.width = "90vw";
-      
-      // Ocultar los elementos <li> al principio
-      
-      open_bar = true; // Actualizar estado
-  } 
-  // Si la pantalla es mayor o igual a 950px y el menú está abierto, ciérralo
+  if (!mediaQuery.matches && open_bar === true) {
+    let sidebar = document.getElementById('sidebar');
+    let mainContent = document.querySelector('.main-content');
+    sidebar.classList.add('hidden_left');
+    mainContent.classList.add('expanded'); // Expande el contenido principal
+    open_bar=false // Agrega la clase para ocultar el sidebar
+  } else if (!mediaQuery.matches && open_bar==false) {
+    let sidebar = document.getElementById('sidebar');
+    let mainContent = document.querySelector('.main-content');
+    sidebar.classList.remove('hidden_left');
+    sidebar.classList.remove('hidden_up');
+    mainContent.classList.remove('expanded');
+    open_bar=true// Remueve la clase para hacerlo visible
+  }
+  //lo voy a cerrar,t engo que dejar expended y quitar horizontal
+  else if (mediaQuery.matches && open_bar==true) {
+    let sidebar = document.getElementById('sidebar');
+    let mainContent = document.querySelector('.main-content');
+    sidebar.classList.add('hidden_up');
+    mainContent.classList.add('expanded'); // Expande el contenido principal
+    mainContent.classList.remove('margin_top')
+    open_bar=false // Agrega la clase para ocultar el sidebar
+  }
+  //lo voy a abrir, tengo que dejar expanded y tengo que dejar horixontal
   else {
-      const sidebar = document.querySelector('.sidebar'); // Selecciona la sidebar
-      sidebar.style.width = '0';
-      sidebar.style.padding = '0';
-      sidebar.innerHTML = ""; // Vaciar el contenido
-      open_bar = false; // Actualizar estado
-      const main_content=document.querySelector(".main-content")
-      main_content.style.marginLeft="0rem"
-      main_content.style.width="100vw"
+    let sidebar = document.getElementById('sidebar');
+    let mainContent = document.querySelector('.main-content');
+    sidebar.classList.remove('hidden_left');
+    sidebar.classList.remove('hidden_up');
+    mainContent.classList.add('expanded');
+    mainContent.classList.add('margin_top')
+    open_bar=true// Remueve la clase para hacerlo visible
+
   }
   }
 

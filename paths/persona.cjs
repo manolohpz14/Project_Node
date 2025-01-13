@@ -16,20 +16,17 @@ const almacenamiento_imagenes = multer.diskStorage({
     destination: async function (req, file, cb) {
         try {
             const username = req.body.username;
-            const email = req.body.email;
-            console.log(username);
-            console.log(email);
+
     
             // Si el usuario existe, procedemos con la creación de directorios
             let rootpath = __dirname.split(path.sep);
             rootpath.pop(); // Eliminar el último directorio (__dirname)
             rootpath = path.join(...rootpath);
-            console.log(rootpath)
+
     
             // Crear la ruta del directorio usando path.join para que sea compatible con el SO
             const filePath = path.join(rootpath, "imagenes", "personas", username);
-            console.log(`Directorio creado: ${filePath}`);
-            console.log(filePath)
+
             await fs.mkdir(filePath, { recursive: true });
     
             // Establecer la ruta del archivo donde se almacenará usando path.join
@@ -53,7 +50,6 @@ const almacenamiento_imagenes = multer.diskStorage({
         
 
         const formattedDate = `${year}-${month}-${day}_${hours}-${minutes}-${seconds}`;
-        console.log(nombre_usuario + "_" + formattedDate + "_" + file.originalname)
         callback(null, nombre_usuario + "_" + formattedDate + "_" + file.originalname);
         
     }
@@ -67,13 +63,11 @@ async function validarExtensionyRegistro (req, file, cb) {
     const extension = path.extname(file.originalname).toLowerCase();
     const username = req.body.username;
     const email = req.body.email;
-    console.log(username)
-    console.log(email)
+
 
     const nombre=req.body.nombre
     const password=req.body.password
-    console.log(nombre)
-    console.log(password)
+
 
     const existsUsername = await Usuarios.findOne({ username });
     const existsEmail = await Usuarios.findOne({ email });
@@ -137,7 +131,6 @@ async function validarExtensionyRegistro (req, file, cb) {
 
     // Validar el campo 'password'
     if (!password || password.length < 6) {
-        console.log(password)
         req.passwordNotOk = 'Error'; // Establecer el error en la solicitud
         return cb(null, false);  // Rechazar el archivo
     }
@@ -160,12 +153,10 @@ const subidas_imagenes = multer({
 const almacenamiento_actividades = multer.diskStorage({
     destination: async function (req, file, cb) {
         try {
-            console.log(req.body)
             const username = req.cookies["username"];
             const actividad = req.body.Actividad;
             const Tema = req.body.Tema;
-            console.log(username);
-            console.log(actividad);
+
     
             // Si el usuario existe, procedemos con la creación de directorios
             let rootpath = __dirname.split(path.sep);
@@ -185,7 +176,6 @@ const almacenamiento_actividades = multer.diskStorage({
     },
 
     filename: function(req, file, callback) {
-        console.log(req.body)
         const nombre_usuario = req.cookies["username"];
         const now = new Date(Date.now());
 
@@ -207,10 +197,8 @@ const almacenamiento_actividades = multer.diskStorage({
 async function validarExtensionactividad(req, file, cb) {
     const extension = path.extname(file.originalname).toLowerCase();
     const username = req.cookies["username"];
-    console.log(username)
 
     if(!req.body.Actividad || !req.body.Comentarios || !req.body.Tema) {
-        console.log("No se han pasado todos los campos que se deben")
         req.bodyNotOK = 'Error'; // Establecer el error en la solicitud
         return cb(null, false); // Rechazar el archivo
 
@@ -250,7 +238,6 @@ function verificarToken(req, res, next) {
     //const token = req.headers['authorization'];
     const token = req.cookies['token']
     const username = req.cookies['username']
-    console.log(token)
     if (!token) {
         return res.status(403).json({ mensaje: "No se proporcionó un token o el toquen a caaducado" }); // En el cliente se debería mopstrar algo como SESIÓN CADUCADA SIEMPRE
     }
@@ -261,9 +248,6 @@ function verificarToken(req, res, next) {
             return res.status(401).json({ mensaje: "Token inválido" });
         }
         req.usuario=decoded
-        console.log(decoded)
-        console.log(req.usuario.username)
-        console.log(username)
         if (req.usuario.username!=username){
             return res.status(401).json({mensaje:"Personal no autorizado"})
         }

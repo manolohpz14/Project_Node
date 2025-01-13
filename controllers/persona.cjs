@@ -29,7 +29,6 @@ async function insertarDocumentos(req, res) {
         // Insertar los documentos en la colección 'actividad'
 
         const resultado = await Actividades.insertMany(actividades);
-        console.log("Documentos insertados con éxito:", resultado);
         res.status(201).json({ message: "Documentos insertados correctamente", data: resultado });
 
 
@@ -120,17 +119,14 @@ async function delete_activity_and_File(req,res) {
         const Tema=req.body.Tema
         // Paso 1: Eliminar el registro del usuario en la base de datos
         await Actividades_entregadas.findOneAndDelete({ username, Actividad, Tema });
-        console.log(`Registro de actividad de ${username} eliminado en la base de datos`);
 
         // Paso 2: Eliminar la carpeta donde se almacenó el archivo
         let rootpath = __dirname.split(path.sep);
         rootpath.pop(); // Eliminar el último directorio (__dirname)
-        console.log(rootpath)
         rootpath = path.join(...rootpath);
 
         const dirPath = path.join(rootpath, "imagenes", "personas", username, Tema+"_"+Actividad);
         await fs.rm(dirPath, { recursive: true, force: true }); // Elimina la carpeta y su contenido
-        console.log(`Carpeta eliminada: ${dirPath}`);
         res.status(200).json({message:"Actividad_eliminada"});
 
 
@@ -147,8 +143,6 @@ const upload_message = async function (req, res) {
         // Obtener los datos del cuerpo de la solicitud
         const username=req.cookies["username"]
         const texto = req.body.texto;
-        console.log(req.body)
-        console.log(username)
 
         // Validar que los campos requeridos estén presentes
         if (!username || !texto) {
@@ -207,10 +201,6 @@ const upload_activity = async function (req, res) {
         const tema = req.body.Tema;
         const actividad = req.body.Actividad;
         const comentarios = req.body.Comentarios;
-        console.log(username)
-        console.log(tema)
-        console.log(actividad)
-        console.log(comentarios)
 
         // Validar que los campos requeridos estén presentes
         if (!username || !comentarios || !actividad || !tema) {
@@ -221,7 +211,6 @@ const upload_activity = async function (req, res) {
         }
 
         if (req.fileValidationError === 'Error'){
-            console.log(req.fileValidationError)
             return res.status(400).json({
                 status: "error",
                 message: "Has pasado una extension no valida de imagen",
@@ -229,7 +218,6 @@ const upload_activity = async function (req, res) {
         }
 
         if (req.bodyNotOK === 'Error'){
-            console.log(req.bodyNotOK)
             return res.status(400).json({
                 status: "error",
                 message: "No se han pasado los campos que se debían",
@@ -237,7 +225,6 @@ const upload_activity = async function (req, res) {
         }
 
         if (req.alreadyExistsUser === 'Error'){
-            console.log(req.bodyNotOK)
             return res.status(400).json({
                 status: "error",
                 message: "Este usuario ya ha entregado esta actividad",
@@ -259,8 +246,6 @@ const upload_activity = async function (req, res) {
         let Nombre_archivo
         if (req.file) {
             Nombre_archivo= req.file.path;
-        } else {
-            console.log("No se ha subido ningún archivo");
         }
 
         // Crear un nuevo mensaje
@@ -274,7 +259,6 @@ const upload_activity = async function (req, res) {
 
         });
 
-        console.log(nuevaEntrega)
 
         // Guardar el mensaje en la base de datos
         const mensajeGuardado = await nuevaEntrega.save();
@@ -300,19 +284,19 @@ const upload_activity = async function (req, res) {
 
 async function create(req, res) {
     const parametros = req.body; // Obtenemos los datos enviados en el POST. AQUÍ NO HAY IMAGEN REQ BODY Y REQ FILE SE SPARAN AUTOMATICAMENTE
-    console.log(req.body)
+
 
     try {
         // Validamos los campos `nombre` y `apellidos` usando validator
         let evalue_title = validator.isEmpty(parametros.username);
-        console.log(req.body)
+
 
         if (evalue_title === true) {
             throw new Error("No se ha validado la información");
         }
-        console.log("Datos validados correctamente");
+
     } catch (error) {
-        console.log(error.stack);
+
         return res.status(400).json({
             status: "error",
             mensaje: "Hay fallos en la validación",
@@ -321,45 +305,36 @@ async function create(req, res) {
         });
     }
 
-    console.log(req.fileValidationError)
+
     if (req.fileValidationError === 'Error'){
-        console.log(req.fileValidationError)
         return res.status(400).json({
             status: "error",
             message: "Has pasado una extension no valida de imagen",
         })
     }
 
-    console.log(req.existsUsername)
     if (req.existsUsername){
-        console.log(req.userRepit)
         return res.status(400).json({
             status: "error",
             message: "Ya existe el usuario",
         })
     }
     
-    console.log(req.existsEmail)
     if (req.existsEmail){
-        console.log(req.gmailRepit)
         return res.status(400).json({
             status: "error",
             message: "Ya existe el email",
         })
     }
 
-    console.log(req.userNotOK)
     if (req.userNotOK){
-        console.log(req.userNotOK)
         return res.status(400).json({
             status: "error",
             message: "El nombre de usuario debe tener al menos 3 letras sin espacios y solo mayúsculas y minúsculas y menos de 14 caracteres",
         })
     }
 
-    console.log(req.nombreNotOK)
     if (req.nombreNotOK){
-        console.log(req.nombreNotOK)
         return res.status(400).json({
             status: "error",
             message: "El nombre de la persona debe tener al menos 3 letras sin espacios y solo mayúsculas y minúsculas y menos de 15 caracteres",
@@ -367,18 +342,14 @@ async function create(req, res) {
     }
     
     
-    console.log(req.emilNotOk)
     if (req.emilNotOk){
-        console.log(req.emilNotOk)
         return res.status(400).json({
             status: "error",
             message: "El email debe tener extension educaand, al menos 4 caracteres delante del @ y menos de 30 caracteres",
         })
     }
 
-    console.log(req.passwordNotOk)
     if (req.passwordNotOk){
-        console.log(req.passwordNotOk)
         return res.status(400).json({
             status: "error",
             message: "La constraseña debe tener al menos 6 caracteres",
@@ -387,18 +358,12 @@ async function create(req, res) {
 
     if (req.file) {
         parametros["foto"] = req.file.path;
-        console.log(req.file.path)
-    } else {
-        console.log("No se ha subido ningún archivo");
     }
 
     const persona_model = new Usuarios(parametros);
-    console.log("Parámetros finales:", parametros);
 
     try {
-        console.log("Intentando guardar en la base de datos...");
         const personasaved = await persona_model.save(); // Mongoose se encargará del encriptado de la contraseña aqui gracia a pre
-        console.log("Guardado en la BD!")
         return res.status(200).json({
             status: "finalizado con éxito",
             persona: personasaved
@@ -410,7 +375,6 @@ async function create(req, res) {
             const message = field === 'username' ? 'El nombre de usuario ya está en uso' : 'El correo electrónico ya está registrado';
             res.status(400).json({ message });
         } else {
-            console.log(error)
             return res.status(400).json({
                 status: "error",
                 message: error.message,
@@ -451,13 +415,10 @@ async function start_session (req, res) {
             username: persona.username
         };
 
-        console.log(userForToken)
 
         const token = jwt.sign(userForToken, process.env.SECRET_KEY, { expiresIn: '1h' });
-        console.log("Mi token es: " + token); // Para depuración
-
         const rutaBase = path.resolve(__dirname, '..'); // Obtiene la ruta base
-        console.log(rutaBase);
+
 
         // Establecer las cookies:
         // Cookie para el token
@@ -480,7 +441,6 @@ async function start_session (req, res) {
         res.status(200).sendFile(path.join(rutaBase, 'public', 'inicio.html'));
         
     } catch (error) {
-        console.log(error.message);
         return res.status(500).json({
             status: "error",
             mensaje: error.message,
@@ -490,7 +450,6 @@ async function start_session (req, res) {
 
 function root (req,res) {
     const rutaBase = path.resolve(__dirname, '..'); // Obtiene la ruta base
-    console.log(rutaBase);
     res.status(200).sendFile(path.join(rutaBase, 'public', 'portada.html'));
 }
 
@@ -578,8 +537,6 @@ const calculate_minutes_connected = async (req, res) => {
         // Calcular diferencia en minutos
         const diferenciaMinutos = Math.floor((cierreSesionDate - ultimaConexion) / 1000 / 60);
 
-        console.log(diferenciaMinutos)
-
         if (diferenciaMinutos < 0) {
             return res.status(400).json({ message: "Error en las fechas" });
         }
@@ -648,7 +605,6 @@ async function edit_last_conexion (req, res) {
         });//Esto genera una cadena de texto que representa la fecha y hora ajustada al huso horario especificado (Europe/Madrid en este caso). Es importante notar que:
 
 
-        console.log(`Hora servidor: ${fechaHoraEspañola}`); // Hora calculada en el servidor
 
         // Guardar la fecha en la base de datos con la hora española
         persona.ult_conexion = fechaHoraEspañola;
@@ -659,7 +615,6 @@ async function edit_last_conexion (req, res) {
             mensaje: "Fecha de última conexión actualizada.",
         });
     } catch (error) {
-        console.log(error.message);
         res.status(500).json({
             status: "error",
             mensaje: error.message,
@@ -680,12 +635,8 @@ async function edit_last_conexion (req, res) {
 //----------------------función para borrar usuario de la db-------------------
 async function delete_One(req, res) {
     let name_persona_borrar = req.params.name;
-    console.log(name_persona_borrar);
     try {
-        
-        console.log("Antes de borrar");
         const result = await Usuarios.deleteOne({ nombre_usuario: name_persona_borrar });
-        console.log("Hemos borrado");
 
         if (result.deletedCount === 0) {
             return res.status(404).json({
@@ -738,8 +689,6 @@ async function get_all_photo(req, res) {
             }
             else {
                 const filePath = path.join(rootpath, persona.foto);
-                console.log(filePath)
-                console.log(persona.username)
                 array_fotos.push({ foto: filePath, username: persona.username, ult_conexion:persona.ult_conexion });
             }
         }
@@ -782,7 +731,7 @@ module.exports={
     edit_last_conexion,
     delete_One,
     changePassword,
-    get_all_photo, //coge todas las fotos de la carpeta
+    get_all_photo,
     get_all_activities,
     get_all_messages,
     upload_message,

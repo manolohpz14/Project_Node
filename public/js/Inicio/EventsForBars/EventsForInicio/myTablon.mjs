@@ -5,7 +5,7 @@ function eventforTablon(upload_message, objeto_foto, get_all_messages, nombre_us
       console.log(objeto); // Aquí tienes acceso a photosArray
     }
     let grid = document.querySelector(".grid");
-    grid.style.transition = "transform 0.3s ease-out";
+    grid.style.transition = "transform 0.5s ease-out";
     grid.style.transform = "translateX(-250vw)";
     grid.style.overflow = "hidden";
 
@@ -229,7 +229,7 @@ function eventforTablon(upload_message, objeto_foto, get_all_messages, nombre_us
       grid.style.transform = "";
 
       pintar(objeto, objeto_foto);
-    }, 300);
+    }, 500);
     
   });
 }

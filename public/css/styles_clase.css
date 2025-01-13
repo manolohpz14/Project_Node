@@ -66,18 +66,75 @@ body {
     height: 100%;
 }
 
+.central_content.vertical{
+    margin-top: 3.6rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    height: 100%;
+}
+
+
 .sidebar {
     width: 10rem;
     background-color: #ffffff;
     color: rgb(0, 0, 0);
     text-align: center;
-    transition: width 0.2s ease-in-out; /*mirar esto y meterlo en los apuntes*/
+    transition: transform 0.5s ease-in-out;
+    transform: translateX(0);
     overflow: hidden; /* Oculta contenido que pueda desbordar durante la transición */
     box-shadow: 3px 3px 3px rgba(0, 0, 0, 0.1);
     position: fixed;
     height: 100vh;
     z-index: 100;
 
+}
+
+  
+/* Sidebar oculto */
+#sidebar.hidden_left {
+transform: translateX(-100%);
+pointer-events: none; 
+transition: transform 0.5s ease-in-out;
+}
+
+#sidebar.hidden_up {
+    transform: translateY(-100%);
+    pointer-events: none; 
+    transition: transform 0.5s ease-in-out;
+}
+    
+
+
+
+
+.sidebar.horizontal {
+    position: fixed;
+    width: 100%;
+    height: auto;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    box-shadow: none;
+    background-color: #ffffff; /* Ajusta el estilo según sea necesario */
+    padding: 10px 0;
+    box-shadow: 0 6px 6px rgba(0, 0, 0, 0.1)
+}
+
+.sidebar.horizontal .sidebar-links {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    width: 100%;
+    padding: 0;
+    margin-top: 0;
+}
+
+
+.sidebar.horizontal .sidebar-links li {
+    display: inline-block;
+    padding: 0 10px;
 }
 
 
@@ -155,9 +212,25 @@ body {
 .main-content {
     padding: 20px;
     width: 90vw;
-    margin-left: 10rem;
+    margin-left: 10rem; /* Margen inicial */
+    transition: margin-left 0.5s ease-in-out, width 0.5s ease-in-out, margin-top 0.5s ease-in-out/* Animar ambas propiedades */
 }
 
+.main-content.expanded {
+    margin-left: 0rem; /* Cambia el margen */
+    width: 100%; /* Cambia el ancho */
+
+}
+
+.main-content.margin_top {
+    margin-top: 3.8rem; /* Cambia el margen */
+    width: 100%; /* Cambia el ancho */
+
+}
+
+.main-content-options {
+    transition: background-color 0.8s ease; /* Animación gradual */
+}
 
 .grid {
     margin-top: 2rem;
@@ -194,9 +267,9 @@ button{
 
 
 
-@media (max-width: 500px) {
+@media (max-width: 600px) {
     .root{
-        font-size: 12px;
+        font-size: 8px;
     }
 
     #images_container h3{
