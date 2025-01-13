@@ -8,7 +8,7 @@ async function conexion() {
         console.log(uri)
         
 
-        if (process.env.PATH_DB != "mongo") {
+        if (process.env.SSL ==="false") {
             // Conexión normal sin opciones avanzadas
             await mongoose.connect(uri);
             console.log("Conexión normal establecida con MongoDB");

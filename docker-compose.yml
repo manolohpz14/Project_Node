@@ -3,7 +3,7 @@ services:
   node:
     build: . #Oye, hazme la imagen de node a partir de mi Dockerfile
     restart: always
-    container_name: contendor_node
+    #container_name: contendor_node
     ports:
       - "5050:5050"
     depends_on:
@@ -12,17 +12,29 @@ services:
       - mi-app-node
     environment:
       - PATH_DB=mongo #esto se controla desde el .env de mi proyecto
+      - SSL=false
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5050"]
+      interval: 30s
+      retries: 3
+      start_period: 5s
+      timeout: 10s
     # volumes:
     #   - C:\Users\manolo\Desktop\MaterialDINT\proyecto_node_asignatura:/usr/src/app # Bind mount para almacenar los datos
 
 
   mongo:
     container_name: contenedor_mongodb
-    image: mongo
+    #image: mongo
+    build:
+      context: .  # Esto indica que Docker debe usar el contexto actual (donde está el Dockerfile)
+      dockerfile: Dockerfile_MongoDB_2  # El nombre del Dockerfile a usar
     ports:
       - "27018:27017"
     networks:
       - mi-app-node
+
+
     # volumes:
     #   - C:\data\db:/data/db # Bind mount para almacenar los datos
 

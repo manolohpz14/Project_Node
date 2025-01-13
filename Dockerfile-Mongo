@@ -1,8 +1,0 @@
-# Usar la imagen oficial de MongoDB
-FROM mongo:latest
-
-# Exponer el puerto 27017 en el contenedor (puerto por defecto de MongoDB)
-EXPOSE 27017
-
-# Configuración adicional para permitir conexiones externas (aceptar conexiones de cualquier IP)
-CMD ["mongod", "--bind_ip_all"]

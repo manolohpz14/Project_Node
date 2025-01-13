@@ -38,7 +38,7 @@ app.listen(5049, "0.0.0.0", function() {
     console.log("Escuchando en el puerto 5049 en todas las interfaces");
 });
 
-https.createServer(options, app).listen(80, () => {
+https.createServer(options, app).listen(5050, () => {
     console.log('Servidor HTTPS corriendo en el puerto 443');
   });
 // //Rutas
