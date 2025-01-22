@@ -2,9 +2,13 @@
 function eventforActivities (obj_actividades,upload_activity,get_all_activities_user,delete_activity_and_File,downloadFile) {
 
     document.querySelector("#ActivitiesDiv").addEventListener("click", async function() {
+      window.scrollTo({
+        top: 0,
+        behavior: 'auto'
+      });
       let grid = document.querySelector(".grid");
       grid.style.transition = "transform 0.5s ease-out";
-      grid.style.transform = "translateX(250vw)";
+      grid.style.transform = "translateX(-250vw)";
       grid.style.overflow = "hidden";
 
     

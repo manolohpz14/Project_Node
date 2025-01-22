@@ -8,27 +8,31 @@
 function eventForCalendar (obj_actividades) {
     const monthsLi = document.getElementById('months'); // Obtener el <li> de "Calendario"
     monthsLi.addEventListener('click', function (e) {
-    // if  (window.innerWidth<950) {
-    // document.getElementById('toggle-sidebar-top').click()
-    // }
+        window.scrollTo({
+            top: 0,
+            behavior: 'auto'
+        });
+        // if  (window.innerWidth<950) {
+        // document.getElementById('toggle-sidebar-top').click()
+        // }
 
-    //3.1) Se hace un fetch para obtener las actividades que están creadas y poder señalarlas en el calendario
-    // const obj_actividades=[
-    //     {Tema:"Tema 1",Color:"green", Actividad: "Actividad 1", Fecha_fin: "2024-12-23",  Fecha_creación: "2024-12-17", Abreviacion:"T1Act1"},
-    //     {Tema:"Tema 1",Color:"green",  Actividad: "Actividad 2", Fecha_fin: "2024-12-27", Fecha_creación: "2024-12-20",Abreviacion:"T1Act2"},
-    //     {Tema:"Tema 2",Color:"blue",  Actividad: "Actividad 1", Fecha_fin: "2024-12-23", Fecha_creación: "2024-12-15",Abreviacion:"T2Act1"},
-    //     {Tema:"Tema 2",Color:"blue", Actividad: "Actividad 1", Fecha_fin: "2025-01-20", Fecha_creación: "2024-12-13",Abreviacion:"T2Act2"},
-    //     {Tema:"Tema 2",Color:"blue", Actividad: "Actividad 1", Fecha_fin: "2025-01-15", Fecha_creación: "2025-01-08",Abreviacion:"T2Act3"},
-    //     {Tema:"Tema 3",Color:"orange", Actividad: "Actividad 1", Fecha_fin: "2025-02-20", Fecha_creación: "2025-02-13",Abreviacion:"T3Act1"}]
-    e.preventDefault(); // Evitar que el enlace se siga de forma predeterminada
+        //3.1) Se hace un fetch para obtener las actividades que están creadas y poder señalarlas en el calendario
+        // const obj_actividades=[
+        //     {Tema:"Tema 1",Color:"green", Actividad: "Actividad 1", Fecha_fin: "2024-12-23",  Fecha_creación: "2024-12-17", Abreviacion:"T1Act1"},
+        //     {Tema:"Tema 1",Color:"green",  Actividad: "Actividad 2", Fecha_fin: "2024-12-27", Fecha_creación: "2024-12-20",Abreviacion:"T1Act2"},
+        //     {Tema:"Tema 2",Color:"blue",  Actividad: "Actividad 1", Fecha_fin: "2024-12-23", Fecha_creación: "2024-12-15",Abreviacion:"T2Act1"},
+        //     {Tema:"Tema 2",Color:"blue", Actividad: "Actividad 1", Fecha_fin: "2025-01-20", Fecha_creación: "2024-12-13",Abreviacion:"T2Act2"},
+        //     {Tema:"Tema 2",Color:"blue", Actividad: "Actividad 1", Fecha_fin: "2025-01-15", Fecha_creación: "2025-01-08",Abreviacion:"T2Act3"},
+        //     {Tema:"Tema 3",Color:"orange", Actividad: "Actividad 1", Fecha_fin: "2025-02-20", Fecha_creación: "2025-02-13",Abreviacion:"T3Act1"}]
+        e.preventDefault(); // Evitar que el enlace se siga de forma predeterminada
 
-    // Inicializar los botones de navegación si aún no existen
-    if (!document.getElementById('nav-container')) {
-        initNavButtons(obj_actividades);
-    }
+        // Inicializar los botones de navegación si aún no existen
+        if (!document.getElementById('nav-container')) {
+            initNavButtons(obj_actividades);
+        }
 
-    // Mostrar las tarjetas correspondientes SOLO del mes actual
-    createCardsForMonth(obj_actividades);
+        // Mostrar las tarjetas correspondientes SOLO del mes actual
+        createCardsForMonth(obj_actividades);
 
     });
 

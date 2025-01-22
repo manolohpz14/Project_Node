@@ -19,6 +19,10 @@ function eventForStats(Chart, get_full_time_at_page) {
     // ];
 
     document.querySelector("#stats").addEventListener("click", async function () {
+        window.scrollTo({
+            top: 0,
+            behavior: 'auto'
+          });
         const response = await get_full_time_at_page(); // Obtenemos la data desde el servidor
 
         const grid = document.querySelector('.grid');

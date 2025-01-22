@@ -4,6 +4,10 @@ function eventForUser(objeto_foto) {
   const usersLi = document.getElementById('usuarios');
   
   usersLi.addEventListener('click', function (e) {
+    window.scrollTo({
+      top: 0,
+      behavior: 'auto'
+    });
     e.preventDefault(); // Evitar que el enlace se siga de forma predeterminada
 
     // Mostrar el calendario (si no está ya visible)

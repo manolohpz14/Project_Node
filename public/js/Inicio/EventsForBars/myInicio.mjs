@@ -15,6 +15,10 @@ function EventsforInicio (upload_message,objeto_foto,get_all_messages,obj_activi
 function eventforInicio (upload_message,objeto_foto,get_all_messages,obj_actividades,nombre_usuario,upload_activity,get_all_activities_user,delete_activity_and_File,downloadFile) {
   const inicio=document.querySelector("#inicio")
   inicio.addEventListener("click",async function () {
+      window.scrollTo({
+        top: 0,
+        behavior: 'auto'
+    });
     const grid = document.querySelector('.grid');
     grid.innerHTML=""
     const mainContent = document.querySelector('.main-content');

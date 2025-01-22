@@ -1,5 +1,9 @@
 function eventforTablon(upload_message, objeto_foto, get_all_messages, nombre_usuario) {
   document.querySelector("#TablonDiv").addEventListener("click", async function () {
+    window.scrollTo({
+      top: 0,
+      behavior: 'auto'
+    });
     const objeto = await get_all_messages();
     if (objeto) {
       console.log(objeto); // Aquí tienes acceso a photosArray

@@ -531,12 +531,17 @@ const calculate_minutes_connected = async (req, res) => {
         });
 
         // Convertir a objetos Date para cálculos
-        const ultimaConexion = new Date(usuario.ult_conexion); // Convertir a Date
-        const cierreSesionDate = new Date(cierreSesion);
+        const ultimaConexion = usuario.ult_conexion; // Convertir a Date
 
-        // Calcular diferencia en minutos
-        const diferenciaMinutos = Math.floor((cierreSesionDate - ultimaConexion) / 1000 / 60);
+        function convertirFecha(fechaStr) {
+            const [fecha, hora] = fechaStr.split(", ");
+            const [dia, mes, año] = fecha.split("/").map(Number);
+            return new Date(`${año}-${mes.toString().padStart(2, '0')}-${dia.toString().padStart(2, '0')}T${hora}`);
+        }
 
+        // Calcular diferencia en minutos. Esto se debe hacer mucho mejor...
+        const diferenciaMinutos = Math.floor((convertirFecha(cierreSesion) - convertirFecha(ultimaConexion)) / 1000 / 60);
+        console.log(diferenciaMinutos)
         if (diferenciaMinutos < 0) {
             return res.status(400).json({ message: "Error en las fechas" });
         }
