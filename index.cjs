@@ -22,7 +22,7 @@ const options = {
 const app= express();
 app.use(cors()); //me permite conexiones entre dominios cruzados
 
-app.use(express.static('public'))
+
 
 
 //Ojo, lo soguiente sirve para que lo que llegue como JSON se transforme como objeto directamente en el req
@@ -34,17 +34,18 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 
-app.listen(80, "0.0.0.0", function() {
-    console.log("Escuchando en el puerto 5049 en todas las interfaces");
-});
+//app.listen(80, "0.0.0.0", function() {
+//console.log("Escuchando en el puerto 5049 en todas las interfaces");
+//});
 
-https.createServer(options, app).listen(80, () => {
+https.createServer(options, app).listen(5050, () => {
     console.log('Servidor HTTPS corriendo en el puerto 443');
   });
 // //Rutas
 app.use(persona_paths.router)
+app.use(express.static('public'))
 
-
+app.use(express.static('public_for_admin'))
 
 
 

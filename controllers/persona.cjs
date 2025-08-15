@@ -190,7 +190,103 @@ const upload_message = async function (req, res) {
     }
 };
 
+async function create_activities_admin(req, res) {
+  try {
+    const token = req.cookies?.token;
+    if (!token) {
+      return res.status(401).json({ message: 'No autenticado: falta token' });
+    }
 
+    let payload;
+    try {
+      payload = jwt.decode(token);
+    } catch (e) {
+      return res.status(401).json({ message: 'Token inválido o expirado' });
+    }
+
+    // Permiso: sólo admin
+    if (!payload?.username || payload.username !== 'admin') {
+      return res.status(403).json({ message: 'Prohibido: sólo admin puede crear actividades' });
+    }
+
+    // Normalizar body a array
+    const body = req.body;
+    if (!body) return res.status(400).json({ message: 'Cuerpo de la petición vacío' });
+
+    const items = Array.isArray(body) ? body : [body];
+
+    // Helper para fecha ES/Madrid
+    const ahoraES = () =>
+      new Date().toLocaleString('es-ES', {
+        timeZone: 'Europe/Madrid',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false,
+      });
+
+    // Preparar documentos (dejamos a Mongoose validar requeridos)
+    const docs = items.map((a) => ({
+      Tema: a.Tema,
+      Color: a.Color ?? 'black',
+      Actividad: a.Actividad,
+      Fecha_fin: a.Fecha_fin,                    // requerido por el esquema
+      Fecha_creación: a.Fecha_creación ?? ahoraES(),
+      Abreviacion: a.Abreviacion,
+      Explicacion: a.Explicacion,
+    }));
+
+    const resultado = await Actividades.insertMany(docs, { ordered: true });
+
+    return res.status(201).json({
+      message: 'Actividades creadas',
+      count: resultado.length,
+      data: resultado,
+    });
+  } catch (err) {
+    console.error('create_activities_admin error:', err);
+    if (err.name === 'ValidationError') {
+      return res.status(400).json({ message: 'Validación fallida', errors: err.errors });
+    }
+    return res.status(500).json({ message: 'Error del servidor', error: err.message });
+  }
+}
+
+
+
+
+const get_inicio_html = async function (req, res) {
+    const token = req.cookies?.token;
+
+    if (!token) {
+        return res.status(401).send('<h1>No estás autorizado</h1>');
+    }
+
+    let payload;
+    try {
+        payload = jwt.decode(token);
+    } catch (e) {
+        return res.status(401).send('<h1>No estás autorizado</h1>');
+    }
+
+    let filePath;
+
+    if (payload?.username === 'admin') {
+        filePath = path.join(__dirname, 'public_for_admin', 'inicio', 'inicio.html');
+    } else {
+        filePath = path.join(__dirname, 'public', 'inicio', 'inicio.html');
+    }
+
+    res.sendFile(filePath, err => {
+        if (err) {
+            console.error('Error al enviar el HTML:', err);
+            res.status(500).send('Error al cargar la página');
+        }
+    });
+}
 
 
 
@@ -438,8 +534,18 @@ async function start_session (req, res) {
         });
 
         // Redirigir al usuario a la página de inicio
+         let payload;
+         try {
+        payload = jwt.decode(token);
+        } 
+        catch (e) {
+        return res.status(401).send('<h1>No estás autorizado</h1>');
+        }
+        if (payload?.username === 'admin') {
+         res.status(200).sendFile(path.join(rutaBase, 'public_for_admin', 'inicio.html'));
+        } else {
         res.status(200).sendFile(path.join(rutaBase, 'public', 'inicio.html'));
-        
+        }     
     } catch (error) {
         return res.status(500).json({
             status: "error",
@@ -746,7 +852,9 @@ module.exports={
     get_all_activities_user,
     delete_activity_and_File,
     insertarDocumentos,
-    downloadFile
+    downloadFile,
+    create_activities_admin,
+    get_inicio_html
     
     
 }

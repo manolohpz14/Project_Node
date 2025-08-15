@@ -235,25 +235,61 @@ const subidas_actividades= multer({
 
 //-----------MIDDLEWARE para verificar token--------------------------
 function verificarToken(req, res, next) {
-    //const token = req.headers['authorization'];
-    const token = req.cookies['token']
-    const username = req.cookies['username']
+    const token = req.cookies['token'];
+    const username = req.cookies['username'];
+
     if (!token) {
-        return res.status(403).json({ mensaje: "No se proporcionó un token o el toquen a caaducado" }); // En el cliente se debería mopstrar algo como SESIÓN CADUCADA SIEMPRE
+        return res.status(403).send(`
+            <!DOCTYPE html>
+            <html lang="es">
+            <head>
+                <meta charset="UTF-8">
+                <title>No autorizado</title>
+                <style>
+                    body { font-family: Arial, sans-serif; background-color: #f4f4f4; text-align: center; padding: 50px; }
+                    h1 { color: #e74c3c; }
+                    p { color: #555; }
+                    a { color: #3498db; text-decoration: none; }
+                    a:hover { text-decoration: underline; }
+                </style>
+            </head>
+            <body>
+                <h1>No estás autorizado</h1>
+                <p>Debes iniciar sesión para acceder a esta página.</p>
+                <a href="/">Volver al inicio</a>
+            </body>
+            </html>
+        `);
     }
 
-    // Verifica el token JWT
     jwt.verify(token, process.env.SECRET_KEY, (err, decoded) => {
-        if (err) {
-            return res.status(401).json({ mensaje: "Token inválido" });
+        if (err || decoded.username !== username) {
+            return res.status(401).send(`
+                <!DOCTYPE html>
+                <html lang="es">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>No autorizado</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; background-color: #f4f4f4; text-align: center; padding: 50px; }
+                        h1 { color: #e74c3c; }
+                        p { color: #555; }
+                        a { color: #3498db; text-decoration: none; }
+                        a:hover { text-decoration: underline; }
+                    </style>
+                </head>
+                <body>
+                    <h1>No estás autorizado</h1>
+                    <p>Tu sesión no es válida.</p>
+                    <a href="/">Volver al inicio</a>
+                </body>
+                </html>
+            `);
         }
-        req.usuario=decoded
-        if (req.usuario.username!=username){
-            return res.status(401).json({mensaje:"Personal no autorizado"})
-        }
-        next()
+
+        req.usuario = decoded;
+        next();
     });
-    
 }
 
 
@@ -283,6 +319,8 @@ router.post("/inicio/upload_activity",verificarToken, [subidas_actividades.singl
 router.delete("/inicio/delete_activity_and_File",verificarToken, persona_Controller.delete_activity_and_File) //Ruta que nos permite borrar usuarios.
 router.post("/inicio/add_activities", persona_Controller.insertarDocumentos)
 router.get("/downloadFile",verificarToken, persona_Controller.downloadFile)
+router.get("/inicio",verificarToken, persona_Controller.get_inicio_html)
+router.post("/create_activities_admin",verificarToken, persona_Controller.create_activities_admin)
 
 
 

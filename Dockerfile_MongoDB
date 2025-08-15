@@ -12,8 +12,12 @@ RUN mkdir -p /data/db
 
 
 RUN echo '#!/bin/bash\n\
-mongod --dbpath /data/db --tlsMode preferTLS --tlsCertificateKeyFile server_combined.pem \n\
---tlsCAFile ca.crt --tlsAllowInvalidCertificates --bind_ip 0.0.0.0' > /start.sh && chmod +x /start.sh
+mongod --dbpath /data/db \
+       --tlsMode preferTLS \
+       --tlsCertificateKeyFile server_combined.pem \
+       --tlsCAFile ca.crt \
+       --tlsAllowInvalidCertificates \
+       --bind_ip 0.0.0.0' > /start.sh && chmod +x /start.sh
 
 # Comando por defecto para ejecutar el script
 CMD ["/start.sh"]
