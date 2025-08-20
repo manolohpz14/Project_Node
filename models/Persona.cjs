@@ -158,8 +158,6 @@ const EntregasSchema = new Schema({
 
 
 
-
-
 const MensajesSchema = new Schema({
     username: {
         type: String,
@@ -170,13 +168,31 @@ const MensajesSchema = new Schema({
     texto: {
         type: String,
         required: [true, "El texto es obligatorio"],
-        minlength: [1, "El nombre de usuario debe tener al menos 3 caracteres"],
+        minlength: [1, "El texto debe tener al menos 1 caracter"],
         maxlength: [1000, "No se pueden superar los 1000 caracteres"],
     },
     fecha_anuncio: {
         type: String,
         required: [true, "El nombre de la fecha_anuncio es obligatoria"]
-    }
+    },
+    likes: {
+        type: [String],  // array de usernames que dieron like
+        default: []
+    },
+    respuestas: {
+        type: [
+            {
+            username: { type: String, required: true },
+            texto: { type: String, required: true, maxlength: 1000 },
+            fecha_respuesta: { type: String, required: true },
+            likes: {
+                type: [String],  // usuarios que dieron like a la respuesta
+                default: []
+            }
+            }
+        ],
+        default: []
+        }
 });
 
 

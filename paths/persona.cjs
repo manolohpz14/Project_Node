@@ -306,7 +306,7 @@ router.delete("/usuario",verificarToken, persona_Controller.delete_One) //Ruta q
 
 //---------------------------
 router.get("/", persona_Controller.root)  //Ruta que nos permite obtener el token de inicio de sesión y obtener el html de portada
-router.get("/inicio", persona_Controller.start_session)  //Ruta que nos permite obtener el token de inicio de sesión y obtener el html de portada
+router.post("/inicio", persona_Controller.start_session)  //Ruta que nos permite obtener el token de inicio de sesión y obtener el html de portada
 router.get("/inicio/get_all_photo",verificarToken, persona_Controller.get_all_photo)
 router.put("/inicio/edit_last_conexion",verificarToken, persona_Controller.edit_last_conexion)
 router.post("/inicio/set_all_minutes",verificarToken, persona_Controller.calculate_minutes_connected)
@@ -315,13 +315,14 @@ router.get("/inicio/get_all_activities",verificarToken, persona_Controller.get_a
 router.get("/inicio/get_all_messages",verificarToken, persona_Controller.get_all_messages)
 router.get("/inicio/get_all_activities_user",verificarToken, persona_Controller.get_all_activities_user)
 router.post("/inicio/upload_message",verificarToken, persona_Controller.upload_message)
+router.post("/inicio/upload_answer",verificarToken, persona_Controller.upload_answer)
 router.post("/inicio/upload_activity",verificarToken, [subidas_actividades.single("archivo")], persona_Controller.upload_activity)
 router.delete("/inicio/delete_activity_and_File",verificarToken, persona_Controller.delete_activity_and_File) //Ruta que nos permite borrar usuarios.
 router.post("/inicio/add_activities", persona_Controller.insertarDocumentos)
 router.get("/downloadFile",verificarToken, persona_Controller.downloadFile)
-router.get("/inicio",verificarToken, persona_Controller.get_inicio_html)
+router.get("/inicio.html",verificarToken, persona_Controller.get_inicio_html)
 router.post("/create_activities_admin",verificarToken, persona_Controller.create_activities_admin)
-
+router.get("/public_for_admin/inicio.html",verificarToken, persona_Controller.get_inicio_html_admin)
 
 
 

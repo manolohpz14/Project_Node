@@ -166,7 +166,7 @@ try {
         throw new Error("No se pudo guardar el mensaje en la base de datos");
     }
 
-    const data = await response.json();
+    const data = await response.json()
     console.log("Mensaje guardado en la BD:", data);
     return data; // Devolver la respuesta del servidor si se necesita
 } catch (error) {
@@ -174,6 +174,22 @@ try {
     throw error; // Relanzar el error si es necesario manejarlo fuera
 }
 }
+
+async function upload_answer(mensajeObj) {
+    const response = await fetch("/inicio/upload_answer", {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json"
+    },
+    body: JSON.stringify({mensajeObj})
+    });
+      if (!response.ok) {
+        throw new Error("No se pudo guardar el mensaje en la base de datos");
+    }
+    const data = await response.json()
+    return data;
+}
+
 
 
 
@@ -287,4 +303,4 @@ async function deleteActivityAndFile(actividad, tema) {
 
 export {getCookie, get_all_photo,last_conexion,get_all_messages,upload_message,
     set_full_time_at_page,get_full_time_at_page,get_all_activities,upload_activity,
-    get_all_activities_user,deleteActivityAndFile,downloadFile}
+    get_all_activities_user,deleteActivityAndFile,downloadFile,upload_answer}

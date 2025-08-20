@@ -7,6 +7,48 @@ function eventforActivities (obj_actividades,upload_activity,get_all_activities_
         behavior: 'auto'
       });
       let grid = document.querySelector(".grid");
+      grid.innerHTML=""
+
+      const loader = document.createElement("div");
+      loader.className = "loader";
+      loader.style.display = "block"; // Lo mostramos inmediatamente
+      loader.style.width = "5rem";
+      loader.style.height = "5rem";
+      grid.append(loader);
+      let actividades_user
+
+      try {
+        actividades_user = await get_all_activities_user();
+        console.log(actividades_user);
+
+        // Promesa que espera 1 segundo antes de ocultar el loader
+        await new Promise(resolve => {
+          setTimeout(() => {
+            loader.style.display = "none";
+            resolve();
+          }, 1000);
+        });
+
+      } catch {
+        // Quitar loader si hay error
+        loader.style.display = "none";
+
+        // Crear mensaje de error
+        const mensajeError = document.createElement("h2");
+        mensajeError.textContent = "No se ha podido obtener la información";
+        mensajeError.style.color = "red";
+        mensajeError.style.fontSize = "1.8rem";
+        mensajeError.style.fontFamily = "Arial, sans-serif";
+        mensajeError.style.textAlign = "center";
+        mensajeError.style.marginTop = "20px";
+        
+        grid.append(mensajeError);
+      }
+
+
+
+
+
       grid.style.transition = "transform 0.5s ease-out";
       grid.style.transform = "translateX(-250vw)";
       grid.style.overflow = "hidden";
@@ -39,8 +81,8 @@ function eventforActivities (obj_actividades,upload_activity,get_all_activities_
 
 
 
-    
-      const actividades_user = await get_all_activities_user();
+
+
       if (actividades_user) {
         console.log(actividades_user);
       }
@@ -465,7 +507,7 @@ function eventforActivities (obj_actividades,upload_activity,get_all_activities_
         //Añadimos al grid nuestro único div con todas las actividades
         grid.appendChild(actividadesContainer);
     });
-    grid.style.transform = "";
+    grid.style.transform = ""; //esto es lo que hace la animacion posible
   },250)
 
   })

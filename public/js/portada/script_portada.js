@@ -78,6 +78,24 @@ document.querySelector("#images_container").addEventListener("click", function()
                 div_absolute_2.style.borderRadius="1.5rem"
                 div_absolute_2.style.boxShadow="0.2rem 0.2rem 0.2rem 0.2rem rgba(4, 1, 46, 0.5)"
                 
+                let closeBtn = document.createElement("button")
+                closeBtn.innerHTML = "&times;" // símbolo de multiplicar (X)
+                closeBtn.style.position = "absolute"
+                closeBtn.style.top = "0.5rem"
+                closeBtn.style.right = "0.5rem"
+                closeBtn.style.background = "transparent"
+                closeBtn.style.border = "none"
+                closeBtn.style.color = "white"
+                closeBtn.style.fontSize = "1.5rem"
+                closeBtn.style.cursor = "pointer"
+                closeBtn.addEventListener("click", function() {
+                    div_absolute.remove()
+                    div_absolute_2.remove()
+                })
+                div_absolute_2.appendChild(closeBtn)
+
+
+
                 let img_logo=document.createElement("img")
                 img_logo.src="./img/logo.png"
                 img_logo.style.width="5rem"
@@ -135,6 +153,7 @@ document.querySelector("#images_container").addEventListener("click", function()
             form.appendChild(fieldContainer);
 
         });
+
         let div_separator=document.createElement("div")
         div_separator.className="separator"
         form.appendChild(div_separator);
@@ -146,6 +165,7 @@ document.querySelector("#images_container").addEventListener("click", function()
         submitButton.className = config.submitClass || "btn-submit";
     
         form.appendChild(submitButton);
+
     
         // Agregar el formulario al cuerpo o a un contenedor especificado
         const targetContainer = document.querySelector(config.targetContainer || "body");
@@ -165,7 +185,8 @@ document.querySelector("#images_container").addEventListener("click", function()
         createform({
             id: "loginForm_singup",
             action: "/inicio",
-            method: "GET",
+            method: "POST",
+            enctype: "application/x-www-form-urlencoded",
             fields: [
                 {
                     type: "text",
@@ -185,7 +206,103 @@ document.querySelector("#images_container").addEventListener("click", function()
             submitText: "Iniciar sesión",
             targetContainer: "#div_absolute_poppup" // ID del contenedor donde se añadirá el formulario
         });
+    
+        const form = document.getElementById("loginForm_singup");
+        const mensaje_servidor = document.createElement("p");
+        mensaje_servidor.style.fontFamily = "'Arial', sans-serif";
+        mensaje_servidor.style.fontSize = "1.1rem";
+        mensaje_servidor.style.marginTop = "1rem";
+        mensaje_servidor.style.display="none"
+        const popupDiv = document.querySelector("#div_absolute_poppup");
+        popupDiv.append(mensaje_servidor);
+
+        if (form) {
+            const boton= form.querySelector("button");
+
+            form.addEventListener("submit", async function(event) {
+                event.preventDefault(); // Evita recargar la página
+
+                // Spinner opcional mientras se procesa la petición
+                let loader = document.createElement("div");
+                loader.className = "loader";
+                popupDiv.append(loader);
+                boton.textContent = "Enviado";
+                boton.style.opacity = "0.4";   // efecto visual
+                boton.style.cursor = "not-allowed";
+                boton.disabled = true
+
+                // Recoger los datos del formulario
+                const formData = new FormData(form);
+                const data = new URLSearchParams();
+                for (const pair of formData) {
+                    data.append(pair[0], pair[1]);
+                }
+
+                try {
+                    const response = await fetch(form.action, {
+                        method: form.method,
+                        headers: {
+                            "Content-Type": "application/x-www-form-urlencoded"
+                        },
+                        body: data
+                    });
+
+                    loader.remove(); // Quitar spinner
+
+
+
+                    if (response.ok) {
+                        mensaje_servidor.style.display="block"
+                        mensaje_servidor.style.color = "green";
+                        mensaje_servidor.textContent = "¡Inicio de sesión exitoso!";
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                        if(formData.get("username")=="admin") {
+                            window.location.href = "/public_for_admin/inicio.html";
+                        }
+                        else {
+                            window.location.href = "/inicio.html";
+                        }
+                    } 
+                    else {
+                        mensaje_servidor.style.display="block"
+                        mensaje_servidor.style.color = "red";
+                        mensaje_servidor.textContent = `Error: Usuario o contraseña invalidos`;
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                        mensaje_servidor.style.display="none"
+                        boton.disabled = false;
+                        boton.textContent = "Enviar";
+                        boton.style.opacity = "1";   // efecto visual
+                        boton.style.cursor = "default";
+                        
+                    }
+
+                    
+                    
+                } catch (error) {
+                    loader.remove();
+                    mensaje_servidor.style.display="block"
+                    mensaje_servidor.style.color = "red";
+                    mensaje_servidor.textContent = `Error de conexión: ${error.message}`;
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    mensaje_servidor.style.display="none"
+                    boton.disabled = false;
+                    boton.textContent = "Enviar";
+                    boton.style.opacity = "1";   // efecto visual
+                    boton.style.cursor = "default";
+
+                }
+            });
+        }
+
+
+
+
+
+
     })
+
+
+    
 
     
     document.querySelector("#register").addEventListener("click", function(){
@@ -233,6 +350,7 @@ document.querySelector("#images_container").addEventListener("click", function()
                 },
                 {
                     type: "password",
+                    name: "repit_password",
                     id: "repit_password",
                     placeholder: "Repite tu contraseña",
                     required: true
@@ -249,54 +367,261 @@ document.querySelector("#images_container").addEventListener("click", function()
             submitText: "Crear usuario",
             targetContainer: "#div_absolute_poppup" // ID del contenedor donde se añadirá el formulario
         });
-        const div_absolute_poppup=document.querySelector("#div_absolute_poppup")
-        const mensaje_servidor=document.createElement("p")
+
+        //Arreglamos cosas en el caso del de crear usuario
+        const div_absolute_poppup = document.querySelector("#div_absolute_poppup");
+        // 🔄 Crear un spinner visual
+        const loader = document.createElement("div");
+        loader.className = "loader"; // Usaremos CSS para la animación
+        loader.style.display = "none"; // Oculto al inicio
+        div_absolute_poppup.appendChild(loader);
 
         const form = document.getElementById("createuserForm");
+        const mensaje_vista_previa_usuario = document.createElement("p");
+        const mensajeError = document.createElement("p")
+        const mensajeError2 = document.createElement("p")
+        const mensajeError3 = document.createElement("p")
+        const mensajeError4 = document.createElement("p")
+        mensajeError.style.display = "none";
+        mensajeError2.style.display = "none";
+        mensajeError3.style.display = "none";
+        mensajeError4.style.display = "none";
+        mensajeError.style.color = "red";
+        mensajeError2.style.color = "red";
+        mensajeError3.style.color = "red";
+        mensajeError4.style.color = "red";
+        div_absolute_poppup.append(mensajeError)
+        div_absolute_poppup.append(mensajeError2)
+        div_absolute_poppup.append(mensajeError3)
+        div_absolute_poppup.append(mensajeError4)
         if (form) {
-            form.addEventListener("submit", async function(event) {
-                event.preventDefault(); // Prevenir la recarga de la página
+            const inputFoto = document.getElementById("foto"); // input type="file"
+            let username = document.getElementById("username"); // input type="file"
+            username.maxLength = 8
+            const inputPassword = document.getElementById("password");
+            const inputRepite = document.getElementById("repit_password");
+            const inputEmail = document.getElementById("email");
+            const boton= form.querySelector("button");
 
+            inputEmail.addEventListener("input", function () {
+            const email = inputEmail.value.trim();
+            const dominio = "@g.educaand.es";
+            // Verifica si termina correctamente
+            if (email.endsWith(dominio)) {
+                const nombre = email.slice(0, -dominio.length); // Parte antes de @g.educaand.es
+
+                if (nombre.length >= 5) {
+                    boton.disabled = false;
+                    boton.textContent = "Enviar";
+                    boton.style.opacity = "1";   // efecto visual
+                    boton.style.cursor = "default";
+                    mensajeError2.style.display = "none";
+                } else {
+                // Menos de 5 caracteres antes del dominio
+                    mensajeError2.textContent = "Debe tener al menos 5 caracteres antes de @g.educaand.es";
+                    mensajeError2.style.display = "block";
+                    boton.disabled = true; // 🔒 bloqueado para siempre
+                    boton.textContent = "Enviar";
+                    boton.style.opacity = "0.4";   // efecto visual
+                    boton.style.cursor = "not-allowed";
+                }
+            } else {
+                if (email.length === 0) {
+                // Válido
+                    mensajeError2.style.display = "none";
+                    boton.disabled = false;
+                    boton.textContent = "Enviar";
+                    boton.style.opacity = "1";   // efecto visual
+                    boton.style.cursor = "default";
+                }
+                else {
+                // Dominio incorrecto
+                    mensajeError2.textContent = "El correo debe terminar en @g.educaand.es";
+                    mensajeError2.style.display = "block";
+                    boton.disabled = true; // 🔒 bloqueado para siempre
+                    boton.textContent = "Enviar";
+                    boton.style.opacity = "0.4";   // efecto visual
+                    boton.style.cursor = "not-allowed";
+                }
+            }
+            });
+            //verificamos si las contraseñas que introduce el usuario coinciden
+           
+            function verificarCoincidencia() {
+            const formData = new FormData(form);
+                const pass1 = formData.get("password");
+                const pass2 = formData.get("repit_password");
+
+                if (pass1 && pass2 && pass1 !== pass2) {
+                    mensajeError.textContent = "Las contraseñas no coinciden.";
+                    mensajeError.style.display = "block";
+
+                    boton.disabled = true; // 🔒 bloqueado para siempre
+                    boton.textContent = "Enviar";
+                    boton.style.opacity = "0.4";   // efecto visual
+                    boton.style.cursor = "not-allowed";
+                } else {
+                    mensajeError.textContent = "";
+                    mensajeError.style.display = "none";
+                    boton.disabled = false;
+                    boton.textContent = "Enviar";
+                    boton.style.opacity = "1";   // efecto visual
+                    boton.style.cursor = "default";
+                } 
+            }
+
+            function validar_username () {
+                   const formData = new FormData(form);
+                if (formData.get("username").length >= 3 & formData.get("username").length <= 8 || formData.get("username").length===0) {
+                    boton.disabled = false;
+                    boton.textContent = "Enviar";
+                    boton.style.opacity = "1";   // efecto visual
+                    boton.style.cursor = "default";
+                    mensajeError3.style.display = "none";
+                } else {
+                // Menos de 5 caracteres antes del dominio
+                    mensajeError3.textContent = "El nombre de usuario debe contener como mucho 8 caracteres y 5 como mínimo";
+                    mensajeError3.style.display = "block";
+                    boton.disabled = true; // 🔒 bloqueado para siempre
+                    boton.textContent = "Enviar";
+                    boton.style.opacity = "0.4";   // efecto visual
+                    boton.style.cursor = "not-allowed";
+                }
+            }
+
+            function vista_previa_perfil () {
+                const file = inputFoto.files[0];
+                if (file) {
+                    // Si ya hay un <img> anterior, eliminarlo
+                    if (document.getElementById("divUsuario")) {
+                        document.getElementById("divUsuario").remove()};
+                    
+                    const div = document.createElement("div");
+                    const img = document.createElement("img");
+                    img.style.marginRight = "1rem";
+                    div.id = "divUsuario";
+                    div.style.color = "black";
+                    div.style.fontSize = "0.8rem";
+                    div.style.margin = "auto";
+                    div.style.width = "19rem";
+                    div.style.padding = "0.5rem"; // Espaciado interno
+                    div.style.border = "0.1rem solid rgba(202, 200, 200, 0.1)";
+                    div.style.borderRadius = "8px";
+                    div.style.backgroundColor = "#ffffffff";
+                    div.style.marginTop = "5rem";
+                    div.style.display = "flex";
+                    div.style.alignItems = "center"; // Centrar contenido verticalmente
+                    div.style.justifyContent = "flex-start"; // Alineación de contenido en el eje horizontal
+                    div.style.margin = "1rem auto 0 auto";
+                    mensaje_vista_previa_usuario.style.color = "white";
+                    mensaje_vista_previa_usuario.textContent = "Tu usuario se verá así:"
+                   
+                    img.style.borderRadius = "50%";
+                    img.style.width = "3rem";
+                    img.style.height = "3rem";
+                    img.style.objectFit = "cover";
+                    img.style.flexShrink="0"
+                    img.src = URL.createObjectURL(file);
+
+                    // Asegurarse de que los datos de 'persona' sean válidos
+                    if (form) {
+                        const formData = new FormData(form);
+                        div.innerHTML = `${formData.get("username")} <span style="color:black; font-size:0.7rem; margin-left:1rem">
+                                        Ultima conexion: Nunca </span>`;
+                    }
+                
+                    const nombreArchivo = file.name.toLowerCase();
+    
+                    if (nombreArchivo.endsWith(".png")) {
+                        boton.disabled = false;
+                        boton.textContent = "Enviar";
+                        boton.style.opacity = "1";   // efecto visual
+                        boton.style.cursor = "default";
+                        mensajeError4.style.display = "none";
+                        div.prepend(img);  // Prepend img to the div
+                        inputFoto.insertAdjacentElement("afterend", div);
+                        inputFoto.insertAdjacentElement("afterend", mensaje_vista_previa_usuario);
+
+                    }
+                     else {
+                        mensajeError4.textContent = "La extensión del archivo debe ser png";
+                        mensajeError4.style.display = "block";
+                        boton.disabled = true; // 🔒 bloqueado para siempre
+                        boton.textContent = "Enviar";
+                        boton.style.opacity = "0.4";   // efecto visual
+                        boton.style.cursor = "not-allowed";
+                    }
+                }
+            }
+
+            inputPassword.addEventListener("input", verificarCoincidencia);
+            inputRepite.addEventListener("input", verificarCoincidencia);
+            username.addEventListener("input", function() {
+                    vista_previa_perfil()
+                    validar_username()}
+            )
+            inputFoto.addEventListener("change", function() {
+                    vista_previa_perfil()
+                });
+
+
+
+
+            const mensaje_servidor = document.createElement("p");
+            form.addEventListener("submit", async function(event) {
+                event.preventDefault();
+                const boton= form.querySelector("button")
+                boton.textContent = "Enviado";
+                boton.style.opacity = "0.4";   // efecto visual
+                boton.style.cursor = "not-allowed";
                 const formData = new FormData(form);
-                console.log(formData)/// Crear un FormData con los datos del formulario
+
+                // Mostrar loader y ocultar mensaje anterior
+                loader.style.display = "block";
+                mensaje_servidor.textContent = "";
 
                 try {
-                    // Realizar el fetch con multipart/form-data automáticamente por el FormData
                     const response = await fetch(form.action, {
                         method: form.method,
                         body: formData 
-                        // Enviar el FormData que incluye la imagen y demás datos
                     });
-                    if (response.ok) {
-                        // Si la respuesta es exitosa, asumimos que el servidor devuelve un JSON
-                        const resultado = await response.json();
-                        console.log("Respuesta del servidor:", resultado);
-                        
-                        mensaje_servidor.style.color = "green";
-                        mensaje_servidor.textContent = "Usuario creado exitosamente"; // Mensaje de éxito
-                        const inputs=document.querySelectorAll("input")
-                        inputs.forEach(function(input){
-                            input.value=""
-                        })
 
-                        div_absolute_poppup.append(mensaje_servidor)
+                    loader.style.display = "none"; // 🔄 Ocultar loader al terminar
+
+                    if (response.ok) {
+                        mensaje_servidor.style.color = "green";
+                        mensaje_servidor.textContent = "Usuario creado exitosamente ✅";
+
+                        // Limpiar inputs
+
                     } else {
-                        // Si la respuesta es un error (status 4xx, 5xx), manejamos el mensaje de error
-                        const errorData = await response.json(); // Asumimos que el servidor devuelve un JSON con el error
-                        console.error("Error del servidor:", errorData);
-                        
+                        const errorData = await response.json(); // <-- aquí conviertes la respuesta a JSON
                         mensaje_servidor.style.color = "red";
-                        mensaje_servidor.textContent = `Error: ${errorData.message || "Ha ocurrido un error en el servidor"}`; // Mensaje de error
-                        div_absolute_poppup.append(mensaje_servidor)
+                        mensaje_servidor.textContent = `❌ Error: ${errorData.message || "Ha ocurrido un error en el servidor"}`;
+                        const inputs = document.querySelectorAll("input");
+                        inputs.forEach(input => input.value = "")
+                        setTimeout(() => {
+                        boton.disabled = false;
+                        boton.textContent = "Enviar";
+                        boton.style.opacity = "1";   // efecto visual
+                        boton.style.cursor = "default";
+                        }, 3); // 4000 milisegundos = 4 segundos
                     }
                 } catch (error) {
-                    console.error("Error al enviar el formulario:", error);
-                    mensaje_servidor.style.color="red"
-                    mensaje_servidor.textContent=error
-                    div_absolute_poppup.append(mensaje_servidor)
+                    loader.style.display = "none"; // 🔄 Ocultar loader si falla
+                    console.error("Ha ocurrido un error inesperado. Inténtelo más tarde", error);
+                    boton.disabled = false;
+                    boton.textContent = "Enviar";
+                    boton.style.opacity = "1";   // efecto visual
+                    boton.style.cursor = "default";
+                    mensaje_servidor.style.color = "red";
+                    mensaje_servidor.textContent = "⚠️ Ha ocurrido un error inesperado. Inténtelo más tarde";
                 }
+
+                div_absolute_poppup.append(mensaje_servidor);
             });
         }
+
     })
 
 

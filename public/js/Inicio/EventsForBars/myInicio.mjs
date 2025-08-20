@@ -4,8 +4,8 @@ import { eventforTablon } from "./EventsForInicio/myTablon.mjs";
 import { eventforActivities } from "./EventsForInicio/myActividades.mjs";
 
 
-function EventsforInicio (upload_message,objeto_foto,get_all_messages,obj_actividades,nombre_usuario,upload_activity,get_all_activities_user,delete_activity_and_File,downloadFile) {
-  eventforTablon(upload_message,objeto_foto,get_all_messages,nombre_usuario)
+function EventsforInicio (upload_message, upload_answer, objeto_foto,get_all_messages,obj_actividades,nombre_usuario,upload_activity,get_all_activities_user,delete_activity_and_File,downloadFile) {
+  eventforTablon(upload_message,objeto_foto,get_all_messages,nombre_usuario,upload_answer)
   eventforActivities(obj_actividades,upload_activity,get_all_activities_user,delete_activity_and_File,downloadFile)
 }
 
@@ -60,7 +60,7 @@ function eventforInicio (upload_message,objeto_foto,get_all_messages,obj_activid
     const listItems_main = document.querySelectorAll('.main-content-options');
 
 
-    //1.2)---Intereación para que los botones tablón yanuncios se queden señalados
+    //1.2)---Intereación para que los botones tablón y anuncios se queden señalados
     listItems_main.forEach(item => {
     item.addEventListener('click', function () {
         // Restablecer estilos de todos los elementos

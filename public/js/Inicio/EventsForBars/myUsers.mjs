@@ -52,6 +52,8 @@ function eventForUser(objeto_foto) {
       img.style.height = "2.5rem";
       img.style.objectFit = "cover";
       img.style.flexShrink="0"
+      img.style.cursor = "pointer";
+
 
       // Asegurarse de que los datos de 'persona' sean válidos
       if (persona) {

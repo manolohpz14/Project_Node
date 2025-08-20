@@ -4,7 +4,8 @@ import { eventForUser } from "./EventsForBars/myUsers.mjs";
 import { eventForStats } from "./EventsForBars/myCharts.mjs";
 import { eventforTopBar } from "./EventsForBars/myTopBar.mjs";
 import {getCookie, get_all_photo,last_conexion,get_all_messages,upload_message,set_full_time_at_page,
-  get_full_time_at_page,get_all_activities,upload_activity,get_all_activities_user,deleteActivityAndFile,downloadFile} from "./Fetchs/fetchs.mjs"
+  get_full_time_at_page,get_all_activities,upload_activity,get_all_activities_user,
+  deleteActivityAndFile,downloadFile, upload_answer} from "./Fetchs/fetchs.mjs"
 import Chart from 'chart.js/auto'
 
 
@@ -46,7 +47,9 @@ document.addEventListener("DOMContentLoaded", async function(){
 
   //--------------Aqui meto los addeventListeners de cada sideBar-------------
   function my_listeners_sidebar(){
-    eventforInicio(upload_message,photosArray,get_all_messages, obj_actividades,username,upload_activity,get_all_activities_user,deleteActivityAndFile,downloadFile)
+    eventforInicio(upload_message, upload_answer, photosArray, get_all_messages, 
+      obj_actividades,username,upload_activity,get_all_activities_user,
+      deleteActivityAndFile,downloadFile)
     eventForCalendar(obj_actividades)
     eventForUser(photosArray)
     eventForStats(Chart,get_full_time_at_page)

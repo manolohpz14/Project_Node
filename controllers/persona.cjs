@@ -190,6 +190,76 @@ const upload_message = async function (req, res) {
     }
 };
 
+
+
+const upload_answer = async function (req, res) {
+  try {
+    const data = req.body.mensajeObj;
+    let { username, fecha_anuncio, respuestas } = data;
+    const [fechaParte, horaParte] = fecha_anuncio.split(' '); // separar fecha y hora
+    const [dia, mes, anio] = fechaParte.split('/');
+    fecha_anuncio = `${dia}/${mes}/${anio.replace(",","")}, ${horaParte}`;
+
+    if (!username || !fecha_anuncio || !respuestas || !respuestas.length) {
+      return res.status(400).json({
+        status: "error",
+        message: "Faltan datos obligatorios para registrar la respuesta",
+      });
+    }
+
+    const nuevaRespuesta = respuestas[0];
+
+    // Buscar el mensaje original por username y fecha
+    let mensajeOriginal = await Mensajes.findOne({
+      username: username.trim(),
+      fecha_anuncio: fecha_anuncio.trim(),
+    });
+
+    if (!mensajeOriginal) {
+      return res.status(404).json({
+        status: "error",
+        message: "Mensaje original no encontrado",
+      });
+    }
+
+
+    if (!Array.isArray(mensajeOriginal.respuestas)) {
+        mensajeOriginal.respuestas = [];
+        }
+
+
+    // Agregar la nueva respuesta al array
+    mensajeOriginal.respuestas.push({
+        username: nuevaRespuesta.username.trim(),
+        texto: nuevaRespuesta.texto.trim(),
+        fecha_respuesta: nuevaRespuesta.fecha_respuesta.trim(),
+    });
+    mensajeOriginal.respuestas = mensajeOriginal.respuestas.filter(r =>
+        r.username && r.texto && r.fecha_respuesta
+        );
+
+
+    const mensajeActualizado = await mensajeOriginal.save();
+
+
+    res.status(200).json({
+      status: "success",
+      message: "Respuesta añadida correctamente",
+      data: mensajeActualizado,
+    });
+    }
+    
+    catch (error) {
+    console.error("Error al añadir respuesta:", error.message);
+    res.status(500).json({
+      status: "error",
+      message: "Hubo un error al añadir la respuesta",
+    });
+  }
+};
+
+
+
 async function create_activities_admin(req, res) {
   try {
     const token = req.cookies?.token;
@@ -200,7 +270,7 @@ async function create_activities_admin(req, res) {
     let payload;
     try {
       payload = jwt.decode(token);
-    } catch (e) {
+    } catch {
       return res.status(401).json({ message: 'Token inválido o expirado' });
     }
 
@@ -262,22 +332,64 @@ const get_inicio_html = async function (req, res) {
     const token = req.cookies?.token;
 
     if (!token) {
-        return res.status(401).send('<h1>No estás autorizado</h1>');
+        return res.status(401).send(`
+                <!DOCTYPE html>
+                <html lang="es">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>No autorizado</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; background-color: #f4f4f4; text-align: center; padding: 50px; }
+                        h1 { color: #e74c3c; }
+                        p { color: #555; }
+                        a { color: #3498db; text-decoration: none; }
+                        a:hover { text-decoration: underline; }
+                    </style>
+                </head>
+                <body>
+                    <h1>No estás autorizado</h1>
+                    <p>Tu sesión no es válida.</p>
+                    <a href="/">Volver al inicio</a>
+                </body>
+                </html>
+            `);
     }
 
     let payload;
     try {
         payload = jwt.decode(token);
-    } catch (e) {
-        return res.status(401).send('<h1>No estás autorizado</h1>');
+    } catch  {
+        return res.status(401).send(`
+                <!DOCTYPE html>
+                <html lang="es">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>No autorizado</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; background-color: #f4f4f4; text-align: center; padding: 50px; }
+                        h1 { color: #e74c3c; }
+                        p { color: #555; }
+                        a { color: #3498db; text-decoration: none; }
+                        a:hover { text-decoration: underline; }
+                    </style>
+                </head>
+                <body>
+                    <h1>No estás autorizado</h1>
+                    <p>Tu sesión no es válida.</p>
+                    <a href="/">Volver al inicio</a>
+                </body>
+                </html>
+            `);
     }
 
     let filePath;
 
     if (payload?.username === 'admin') {
-        filePath = path.join(__dirname, 'public_for_admin', 'inicio', 'inicio.html');
+        filePath = path.join(__dirname, '..', 'public', 'public_for_admin', 'inicio.html');
+
     } else {
-        filePath = path.join(__dirname, 'public', 'inicio', 'inicio.html');
+       filePath = path.join(__dirname, '..', 'public', 'inicio.html');
+
     }
 
     res.sendFile(filePath, err => {
@@ -287,6 +399,59 @@ const get_inicio_html = async function (req, res) {
         }
     });
 }
+
+
+
+const get_inicio_html_admin = async function (req, res) {
+    const token = req.cookies?.token;
+
+    if (!token) {
+        return res.status(401).send('<h1>No estás autorizado</h1>');
+    }
+
+    let payload;
+    try {
+        payload = jwt.decode(token);
+    } catch  {
+        return res.status(401).send('<h1>No estás autorizado</h1>');
+    }
+
+    let filePath;
+
+    if (payload?.username === 'admin') {
+        filePath = path.join(__dirname, '..', 'public', 'public_for_admin', 'inicio.html');
+    } else {
+       return res.status(401).send(`
+                <!DOCTYPE html>
+                <html lang="es">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>No autorizado</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; background-color: #f4f4f4; text-align: center; padding: 50px; }
+                        h1 { color: #e74c3c; }
+                        p { color: #555; }
+                        a { color: #3498db; text-decoration: none; }
+                        a:hover { text-decoration: underline; }
+                    </style>
+                </head>
+                <body>
+                    <h1>No estás autorizado</h1>
+                    <p>Tu sesión no es válida.</p>
+                    <a href="/">Volver al inicio</a>
+                </body>
+                </html>
+            `);
+    }
+
+    res.sendFile(filePath, err => {
+        if (err) {
+            console.error('Error al enviar el HTML:', err);
+            res.status(500).send('Error al cargar la página');
+        }
+    });
+}
+
 
 
 
@@ -487,8 +652,8 @@ async function create(req, res) {
 
 async function start_session (req, res) {
     try {
-        const username = req.query.username;  // Obtiene el valor de 'username'
-        const password = req.query.password;
+        const { username, password } = req.body;
+
 
         // Busca una persona por el campo `username`
         const persona = await Usuarios.findOne({ username: username });
@@ -538,11 +703,32 @@ async function start_session (req, res) {
          try {
         payload = jwt.decode(token);
         } 
-        catch (e) {
-        return res.status(401).send('<h1>No estás autorizado</h1>');
+        catch {
+                return res.status(401).send(`
+                <!DOCTYPE html>
+                <html lang="es">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>No autorizado</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; background-color: #f4f4f4; text-align: center; padding: 50px; }
+                        h1 { color: #e74c3c; }
+                        p { color: #555; }
+                        a { color: #3498db; text-decoration: none; }
+                        a:hover { text-decoration: underline; }
+                    </style>
+                </head>
+                <body>
+                    <h1>No estás autorizado</h1>
+                    <p>Tu sesión no es válida.</p>
+                    <a href="/">Volver al inicio</a>
+                </body>
+                </html>
+            `);
         }
-        if (payload?.username === 'admin') {
-         res.status(200).sendFile(path.join(rutaBase, 'public_for_admin', 'inicio.html'));
+        if (payload?.username == 'admin') {
+         res.status(200).sendFile(path.join(rutaBase, 'public', 'public_for_admin', 'inicio.html'));
+
         } else {
         res.status(200).sendFile(path.join(rutaBase, 'public', 'inicio.html'));
         }     
@@ -558,6 +744,8 @@ function root (req,res) {
     const rutaBase = path.resolve(__dirname, '..'); // Obtiene la ruta base
     res.status(200).sendFile(path.join(rutaBase, 'public', 'portada.html'));
 }
+
+
 
 
 
@@ -647,7 +835,6 @@ const calculate_minutes_connected = async (req, res) => {
 
         // Calcular diferencia en minutos. Esto se debe hacer mucho mejor...
         const diferenciaMinutos = Math.floor((convertirFecha(cierreSesion) - convertirFecha(ultimaConexion)) / 1000 / 60);
-        console.log(diferenciaMinutos)
         if (diferenciaMinutos < 0) {
             return res.status(400).json({ message: "Error en las fechas" });
         }
@@ -846,6 +1033,7 @@ module.exports={
     get_all_activities,
     get_all_messages,
     upload_message,
+    upload_answer,
     calculate_minutes_connected,
     get_minutes_connected,
     upload_activity,
@@ -854,7 +1042,8 @@ module.exports={
     insertarDocumentos,
     downloadFile,
     create_activities_admin,
-    get_inicio_html
+    get_inicio_html,
+    get_inicio_html_admin
     
     
 }

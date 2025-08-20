@@ -45,8 +45,6 @@ https.createServer(options, app).listen(5050, () => {
 app.use(persona_paths.router)
 app.use(express.static('public'))
 
-app.use(express.static('public_for_admin'))
-
 
 
 
