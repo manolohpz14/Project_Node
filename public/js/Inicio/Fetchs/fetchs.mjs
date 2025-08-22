@@ -97,58 +97,71 @@ async function downloadFile(actividad,tema) {
 }
 
 async function get_all_messages() {
-try {
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), 20000); // 20s
+
+  try {
     const response = await fetch("/inicio/get_all_messages", {
-        method: "GET",
-        headers: {
-            'Content-Type': "application/json"
-        },
-        credentials: "include" // Si es necesario para la autenticación
+      method: "GET",
+      headers: {
+        'Content-Type': "application/json"
+      },
+      credentials: "include",
+      signal: controller.signal // asociamos el abort
     });
 
-    // Verificar si la respuesta es exitosa
+    clearTimeout(timeoutId); // limpiar si termina antes
+
     if (!response.ok) {
-        throw new Error('No se pudo obtener los mensajes');
+      throw new Error("No se pudo obtener los mensajes");
     }
 
-    // Procesar la respuesta como JSON
     const mensajes = await response.json();
-    console.log('Mensajes obtenidos:', mensajes);
-
-    // Retornar los mensajes si es necesario
+    console.log("Mensajes obtenidos:", mensajes);
     return mensajes;
-} catch (error) {
-    console.error("Error:", error.message);
+
+  } catch (error) {
+    if (error.name === "AbortError") {
+      console.error("Error: La petición tardó más de 20 segundos y fue cancelada");
+    } else {
+      console.error("Error:", error.message);
+    }
+    throw error; // relanzamos para que tu catch exterior lo maneje si quieres
+  }
 }
-}
+
 
 
 
 async function get_all_activities_user() {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 20000); // 20s timeout
+
     try {
         const response = await fetch("/inicio/get_all_activities_user", {
             method: "GET",
             headers: {
                 'Content-Type': "application/json"
             },
-            credentials: "include" // Si es necesario para la autenticación
+            credentials: "include",
+            signal: controller.signal
         });
-    
-        // Verificar si la respuesta es exitosa
+
+        clearTimeout(timeout);
+
         if (!response.ok) {
-            throw new Error('No se pudo obtener lac actividades');
+            throw new Error("No se pudo obtener las actividades");
         }
-    
-        // Procesar la respuesta como JSON
-        const actividades_user = await response.json();
-    
-        // Retornar los mensajes si es necesario
-        return actividades_user;
+
+        return await response.json(); 
     } catch (error) {
-        console.error("Error:", error.message);
+        if (error.name === "AbortError") {
+            throw new Error("La petición tardó demasiado (timeout de 20s).");
+        }
+        throw error; 
     }
-    }
-    
+}
+
 
 
 async function upload_message(mensajeObj) {
