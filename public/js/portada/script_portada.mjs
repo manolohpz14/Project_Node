@@ -1,181 +1,186 @@
-document.addEventListener('DOMContentLoaded', () => {
 
 
-const encabezado = document.getElementById("h2_anim");
-let intervaloId;
-    // Función para añadir letras con un intervalo
-function escribirTexto(frase_escribir) {
-    const palabras = frase_escribir.split(" "); // Dividimos el texto en palabras
-    let letraIndex = 0;
-    let palabraIndex = 0;
-    let frase = "";
-    encabezado.textContent=""
-    const clases = ['font-1', 'font-2', 'font-3', 'font-4', 'font-5'];  // Clases para los estilos
-     
+function popUp(color) {
+    //div que pone la pantalla en negro
+    let div_absolute=document.createElement("div")
+    div_absolute.id="div_absolute_background"
+    div_absolute.style.position = "fixed"; // en vez de absolute
+    div_absolute.style.zIndex = "1000000"; // en vez de absolute
+    div_absolute.style.top = "0";
+    div_absolute.style.left = "0";
+    div_absolute.style.width = "100%";
+    div_absolute.style.height = "100%";
+    div_absolute.style.pointerEvents = "auto"; // para que reciba clics
+    div_absolute.style.backgroundColor = "rgba(88, 88, 88, 0.7)";
+    div_absolute.style.width="100vw"
+    document.querySelector("body").appendChild(div_absolute)
 
-    function animar() {
-        if (palabraIndex < palabras.length) {
-            const palabra = palabras[palabraIndex];
-            let palabraHtml = '';
+    //div que crea el recuadro de iniciar sesión
+    let div_absolute_2=document.createElement("div")
+    div_absolute_2.id="div_absolute_poppup"
+    div_absolute_2.style.position="fixed "
+    div_absolute_2.style.top="50%"
+    div_absolute_2.style.left="50%"
+    div_absolute_2.style.padding="5rem"
+    div_absolute_2.style.paddingTop="0.5rem"
+    div_absolute_2.style.paddingBottom="2.5rem"
+    div_absolute_2.style.zIndex="10000000"
+    div_absolute_2.style.transform = "translate(-50%, -50%)"
+    div_absolute_2.style.pointerEvents = "auto";
+    div_absolute_2.style.backgroundColor=color
+    div_absolute_2.style.borderRadius="1.5rem"
+    div_absolute_2.style.boxShadow="0.2rem 0.2rem 0.2rem 0.2rem rgba(4, 1, 46, 0.5)"
+    
+    let closeBtn = document.createElement("button")
+    closeBtn.innerHTML = "&times;" // símbolo de multiplicar (X)
+    closeBtn.style.position = "absolute"
+    closeBtn.style.top = "0.5rem"
+    closeBtn.style.right = "0.5rem"
+    closeBtn.style.background = "transparent"
+    closeBtn.style.border = "none"
+    closeBtn.style.color = "white"
+    closeBtn.style.fontSize = "1.5rem"
+    closeBtn.style.cursor = "pointer"
+    closeBtn.addEventListener("click", function() {
+        div_absolute.remove()
+        div_absolute_2.remove()
+    })
+    div_absolute_2.appendChild(closeBtn)
 
-            // Crear palabra con las letras hasta el índice actual
-            for (let i = 0; i <= letraIndex; i++) {
-                palabraHtml += palabra[i];
-            }
 
-            // Aplicar estilo
-            const textoconestilo = `<span class="${clases[palabraIndex % clases.length]}">${palabraHtml}</span> `;
-            encabezado.innerHTML = frase + textoconestilo; // Mostrar el texto en el encabezado
 
-            letraIndex++; // Aumentar el índice de letra
+    let img_logo=document.createElement("img")
+    img_logo.src="./img/logo.png"
+    img_logo.style.width="5rem"
+    img_logo.style.marginBottom="1rem"
+    div_absolute_2.append(img_logo)
+    document.querySelector("body").appendChild(div_absolute_2)
 
-            if (letraIndex === palabra.length) { // Si ya hemos terminado una palabra
-                letraIndex = 0;
-                frase += textoconestilo + "<br>"; // Añadir la palabra completa al texto mostrado
-                palabraIndex++; // Avanzar a la siguiente palabra
-            }
-        }
-    }
-    intervaloId =setInterval(animar, 100);
+    div_absolute.addEventListener("click", function() {
+        // Remueve el fondo negro y el pop-up
+        div_absolute.remove();
+        div_absolute_2.remove();
+    });        
 }
 
 
-escribirTexto("¡Bienvenido a desarrollo de interfaces!");
+function createform (config) {
+    const form = document.createElement("form");
+    form.action = config.action || "#"; 
+    form.method = config.method || "POST"; 
+    form.id = config.id || "dynamicForm"; 
+    form.style.display = config.style?.display || "flex";
+    form.style.flexDirection = config.style?.flexDirection || "column";
+    form.style.gap = config.style?.gap || "1rem";
+    form.enctype= config.enctype
+
+
+    config.fields.forEach(field => {
+        const fieldContainer = document.createElement("div");
+        fieldContainer.className = "form-group"; // Clase para estilo
+
+        // Crear la etiqueta si existe
+        if (field.label) {
+            const label = document.createElement("label");
+            label.textContent = field.label;
+            label.htmlFor = field.id || field.name;
+            fieldContainer.appendChild(label);
+        }
+
+        // Crear el campo de entrada
+        const input = document.createElement("input");
+        input.type = field.type || "text"; // Tipo de input (text, email, password, etc.)
+        input.name = field.name || ""; // Nombre del campo
+        input.id = field.id || ""; // ID del campo
+        input.placeholder = field.placeholder || ""; // Placeholder
+        input.required = field.required || false; // Si el campo es obligatorio
+
+        // Agregar clases y estilos adicionales al input si se especifican
+        if (field.className) input.className = field.className;
+        if (field.style) Object.assign(input.style, field.style);
+
+
+        fieldContainer.appendChild(input);
+
+        // Agregar el campo al formulario
+        form.appendChild(fieldContainer);
+
+    });
+
+    let div_separator=document.createElement("div")
+    div_separator.className="separator"
+    form.appendChild(div_separator);
+
+    // Crear un botón de envío
+    const submitButton = document.createElement("button");
+    submitButton.type = "submit";
+    submitButton.textContent = config.submitText || "Enviar";
+    submitButton.className = config.submitClass || "btn-submit";
+
+    form.appendChild(submitButton);
+
+
+    // Agregar el formulario al cuerpo o a un contenedor especificado
+    const targetContainer = document.querySelector(config.targetContainer || "body");
+    targetContainer.appendChild(form);
+}
 
 
 
-document.querySelector("#images_container").addEventListener("click", function() {
-    clearInterval(intervaloId)
-    escribirTexto("¡La doc está disponible abajo!");
-});
 
 
-    function popUp() {
-                //div que pone la pantalla en negro
-                let div_absolute=document.createElement("div")
-                div_absolute.id="div_absolute_background"
-                div_absolute.style.position="absolute"
-                div_absolute.style.top="0"
-                div_absolute.style.left="0"
-                div_absolute.style.height= Math.max(document.body.scrollHeight, document.documentElement.scrollHeight)+"px"
-                div_absolute.style.zIndex="999"
-                div_absolute.style.backgroundColor="rgba(88, 88, 88, 0.7)"
-                div_absolute.style.width="100vw"
-                document.querySelector("body").appendChild(div_absolute)
+
+document.addEventListener('DOMContentLoaded', () => {
+    const encabezado = document.getElementById("h2_anim");
+    let intervaloId;
+        // Función para añadir letras con un intervalo
+    function escribirTexto(frase_escribir) {
+        const palabras = frase_escribir.split(" "); // Dividimos el texto en palabras
+        let letraIndex = 0;
+        let palabraIndex = 0;
+        let frase = "";
+        encabezado.textContent=""
+        const clases = ['font-1', 'font-2', 'font-3', 'font-4', 'font-5'];  // Clases para los estilos
         
-                //div que crea el recuadro de iniciar sesión
-                let div_absolute_2=document.createElement("div")
-                div_absolute_2.id="div_absolute_poppup"
-                div_absolute_2.style.position="fixed "
-                div_absolute_2.style.top="50%"
-                div_absolute_2.style.left="50%"
-                div_absolute_2.style.padding="5rem"
-                div_absolute_2.style.paddingTop="0.5rem"
-                div_absolute_2.style.paddingBottom="2.5rem"
-                div_absolute_2.style.zIndex="9999"
-                div_absolute_2.style.transform = "translate(-50%, -50%)"
-                div_absolute_2.style.backgroundColor="rgb(0, 0, 0)"
-                div_absolute_2.style.borderRadius="1.5rem"
-                div_absolute_2.style.boxShadow="0.2rem 0.2rem 0.2rem 0.2rem rgba(4, 1, 46, 0.5)"
-                
-                let closeBtn = document.createElement("button")
-                closeBtn.innerHTML = "&times;" // símbolo de multiplicar (X)
-                closeBtn.style.position = "absolute"
-                closeBtn.style.top = "0.5rem"
-                closeBtn.style.right = "0.5rem"
-                closeBtn.style.background = "transparent"
-                closeBtn.style.border = "none"
-                closeBtn.style.color = "white"
-                closeBtn.style.fontSize = "1.5rem"
-                closeBtn.style.cursor = "pointer"
-                closeBtn.addEventListener("click", function() {
-                    div_absolute.remove()
-                    div_absolute_2.remove()
-                })
-                div_absolute_2.appendChild(closeBtn)
 
+        function animar() {
+            if (palabraIndex < palabras.length) {
+                const palabra = palabras[palabraIndex];
+                let palabraHtml = '';
 
+                // Crear palabra con las letras hasta el índice actual
+                for (let i = 0; i <= letraIndex; i++) {
+                    palabraHtml += palabra[i];
+                }
 
-                let img_logo=document.createElement("img")
-                img_logo.src="./img/logo.png"
-                img_logo.style.width="5rem"
-                img_logo.style.marginBottom="1rem"
-                div_absolute_2.append(img_logo)
-                document.querySelector("body").appendChild(div_absolute_2)
-        
-                div_absolute.addEventListener("click", function() {
-                    // Remueve el fondo negro y el pop-up
-                    div_absolute.remove();
-                    div_absolute_2.remove();
-                });        
-    }
+                // Aplicar estilo
+                const textoconestilo = `<span class="${clases[palabraIndex % clases.length]}">${palabraHtml}</span> `;
+                encabezado.innerHTML = frase + textoconestilo; // Mostrar el texto en el encabezado
 
+                letraIndex++; // Aumentar el índice de letra
 
-    function createform (config) {
-        const form = document.createElement("form");
-        form.action = config.action || "#"; 
-        form.method = config.method || "POST"; 
-        form.id = config.id || "dynamicForm"; 
-        form.style.display = config.style?.display || "flex";
-        form.style.flexDirection = config.style?.flexDirection || "column";
-        form.style.gap = config.style?.gap || "1rem";
-        form.enctype= config.enctype
-    
-
-        config.fields.forEach(field => {
-            const fieldContainer = document.createElement("div");
-            fieldContainer.className = "form-group"; // Clase para estilo
-    
-            // Crear la etiqueta si existe
-            if (field.label) {
-                const label = document.createElement("label");
-                label.textContent = field.label;
-                label.htmlFor = field.id || field.name;
-                fieldContainer.appendChild(label);
+                if (letraIndex === palabra.length) { // Si ya hemos terminado una palabra
+                    letraIndex = 0;
+                    frase += textoconestilo + "<br>"; // Añadir la palabra completa al texto mostrado
+                    palabraIndex++; // Avanzar a la siguiente palabra
+                }
             }
-    
-            // Crear el campo de entrada
-            const input = document.createElement("input");
-            input.type = field.type || "text"; // Tipo de input (text, email, password, etc.)
-            input.name = field.name || ""; // Nombre del campo
-            input.id = field.id || ""; // ID del campo
-            input.placeholder = field.placeholder || ""; // Placeholder
-            input.required = field.required || false; // Si el campo es obligatorio
-    
-            // Agregar clases y estilos adicionales al input si se especifican
-            if (field.className) input.className = field.className;
-            if (field.style) Object.assign(input.style, field.style);
-
-    
-            fieldContainer.appendChild(input);
-    
-            // Agregar el campo al formulario
-            form.appendChild(fieldContainer);
-
-        });
-
-        let div_separator=document.createElement("div")
-        div_separator.className="separator"
-        form.appendChild(div_separator);
-
-        // Crear un botón de envío
-        const submitButton = document.createElement("button");
-        submitButton.type = "submit";
-        submitButton.textContent = config.submitText || "Enviar";
-        submitButton.className = config.submitClass || "btn-submit";
-    
-        form.appendChild(submitButton);
-
-    
-        // Agregar el formulario al cuerpo o a un contenedor especificado
-        const targetContainer = document.querySelector(config.targetContainer || "body");
-        targetContainer.appendChild(form);
+        }
+        intervaloId =setInterval(animar, 100);
     }
 
+
+    escribirTexto("¡Bienvenido a la Formación Profesional!");
+
+
+    document.querySelector("#images_container").addEventListener("click", function() {
+        clearInterval(intervaloId)
+        escribirTexto("¡La doc está disponible abajo!");
+    });
 
     //---------Eventos a partir de la funcion anterior--------------------
     document.querySelector("#singup").addEventListener("click", function(){
-        popUp()
+        popUp("rgb(0, 0, 0)")
         let texto_plano=document.createElement("h2")
         texto_plano.style.fontFamily = "'Arial', sans-serif"; // Fuente moderna
         texto_plano.textContent="Inicio de Sesión"
@@ -306,7 +311,7 @@ document.querySelector("#images_container").addEventListener("click", function()
 
     
     document.querySelector("#register").addEventListener("click", function(){
-        popUp()
+        popUp("rgb(0, 0, 0)")
         let texto_plano=document.createElement("h2")
         texto_plano.style.fontFamily = "'Arial', sans-serif"; // Fuente moderna
         texto_plano.textContent="Registrate en tu nuevo Classroom"
@@ -574,6 +579,19 @@ document.querySelector("#images_container").addEventListener("click", function()
                 boton.textContent = "Enviado";
                 boton.style.opacity = "0.4";   // efecto visual
                 boton.style.cursor = "not-allowed";
+                if (mensajeError) {
+                    mensajeError.style.display="none"
+                }
+                if (mensajeError2) {
+                    mensajeError2.style.display="none"
+                }
+                if (mensajeError3) {
+                    mensajeError3.style.display="none"
+                }
+                if (mensajeError4) {
+                    mensajeError4.style.display="none"
+                }
+
                 const formData = new FormData(form);
 
                 // Mostrar loader y ocultar mensaje anterior
@@ -605,17 +623,20 @@ document.querySelector("#images_container").addEventListener("click", function()
                         boton.textContent = "Enviar";
                         boton.style.opacity = "1";   // efecto visual
                         boton.style.cursor = "default";
-                        }, 3); // 4000 milisegundos = 4 segundos
+                        }, 1000); // 4000 milisegundos = 4 segundos
                     }
                 } catch (error) {
                     loader.style.display = "none"; // 🔄 Ocultar loader si falla
                     console.error("Ha ocurrido un error inesperado. Inténtelo más tarde", error);
-                    boton.disabled = false;
-                    boton.textContent = "Enviar";
-                    boton.style.opacity = "1";   // efecto visual
-                    boton.style.cursor = "default";
-                    mensaje_servidor.style.color = "red";
-                    mensaje_servidor.textContent = "⚠️ Ha ocurrido un error inesperado. Inténtelo más tarde";
+                    setTimeout(() => {
+                        boton.disabled = false;
+                        boton.textContent = "Enviar";
+                        boton.style.opacity = "1";   // efecto visual
+                        boton.style.cursor = "default";
+                        boton.disabled = false;
+                        mensaje_servidor.style.color = "red";
+                        mensaje_servidor.textContent = "⚠️ Ha ocurrido un error inesperado. Inténtelo más tarde";
+                        }, 1000); // 4000 milisegundos = 4 segundos
                 }
 
                 div_absolute_poppup.append(mensaje_servidor);
@@ -733,4 +754,7 @@ document.querySelector("#images_container").addEventListener("click", function()
     });
 
 })
+
+export {popUp,createform}
+
 

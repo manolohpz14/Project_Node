@@ -6,27 +6,31 @@ const getCookie = (cookieName) => {
   };
 
 
-async function get_all_photo(){
 
-try {
-    const response = await fetch(`/inicio/get_all_photo`,
-        {
-            method:"GET",
-            headers:{
-                //'Authorization':token,
-                'Content-Type': "application/json"
-            },
-            credentials:"include"
-        }
-    );
+
+async function get_all_photo() {
+  try {
+    const response = await fetch(`/inicio/get_all_photo`, {
+      method: "GET",
+      headers: {
+        'Content-Type': "application/json"
+      },
+      credentials: "include"
+    });
+
+    const text = await response.text(); // leemos la respuesta como texto
+
     if (!response.ok) {
+      // Detectamos si la respuesta es HTML
+      if (text.startsWith("<!DOCTYPE html>") || text.includes("<html")) {
+        console.warn("Recibido HTML de error:", text);
+        document.body.innerHTML = text; // reemplaza la página actual
+        return null;
+      } else {
         throw new Error('No se pudo obtener la información del usuario');
+      }
     }
 
-    const photosArray = await response.json();
-    console.log(photosArray)
-    return photosArray
-    
     //ASÍ ES COMO SE HACÍA ANETES CON UN BLOB!!!
     // console.log(response)
     // const usuarioData = await response.blob();
@@ -37,12 +41,19 @@ try {
     // imagen_child.style.maxWidth = "20vw"
     // contendor.appendChild(imagen_child)
 
-    } 
-catch (error) {
+
+    // Si todo OK, parseamos JSON
+    const photosArray = JSON.parse(text);
+    console.log(photosArray);
+    return photosArray;
+
+  } catch (error) {
     console.error("Error:", error.message);
-    return error
+    return error;
+  }
 }
-}
+
+
 
 
 async function last_conexion() {
@@ -97,7 +108,7 @@ async function downloadFile(actividad,tema) {
 }
 
 async function get_all_messages() {
-  const controller = new AbortController()
+  const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 20000); // 20s
 
   try {
@@ -107,16 +118,26 @@ async function get_all_messages() {
         'Content-Type': "application/json"
       },
       credentials: "include",
-      signal: controller.signal // asociamos el abort
+      signal: controller.signal
     });
 
-    clearTimeout(timeoutId); // limpiar si termina antes
+    clearTimeout(timeoutId); // limpiar timeout si termina antes
+
+    const text = await response.text(); // leemos como texto
 
     if (!response.ok) {
-      throw new Error("No se pudo obtener los mensajes");
+      // Detectamos si la respuesta es HTML
+      if (text.startsWith("<!DOCTYPE html>") || text.includes("<html")) {
+        console.warn("Recibido HTML de error:", text);
+        document.body.innerHTML = text; // reemplaza la página actual
+        return null;
+      } else {
+        throw new Error("No se pudo obtener los mensajes");
+      }
     }
 
-    const mensajes = await response.json();
+    // Si todo OK, parseamos JSON
+    const mensajes = JSON.parse(text);
     console.log("Mensajes obtenidos:", mensajes);
     return mensajes;
 
@@ -126,9 +147,10 @@ async function get_all_messages() {
     } else {
       console.error("Error:", error.message);
     }
-    throw error; // relanzamos para que tu catch exterior lo maneje si quieres
+    throw error; // relanzamos para que un catch exterior lo maneje
   }
 }
+
 
 
 
@@ -149,11 +171,23 @@ async function get_all_activities_user() {
 
         clearTimeout(timeout);
 
+        const text = await response.text(); // leemos como texto
+
         if (!response.ok) {
-            throw new Error("No se pudo obtener las actividades");
+            // Detectamos si es HTML (por ejemplo middleware 403)
+            if (text.startsWith("<!DOCTYPE html>") || text.includes("<html")) {
+                console.warn("Recibido HTML de error:", text);
+                document.body.innerHTML = text; // reemplaza la página actual
+                return null;
+            } else {
+                throw new Error("No se pudo obtener las actividades");
+            }
         }
 
-        return await response.json(); 
+        // Parseamos JSON si la respuesta es correcta
+        const data = JSON.parse(text);
+        return data;
+
     } catch (error) {
         if (error.name === "AbortError") {
             throw new Error("La petición tardó demasiado (timeout de 20s).");
@@ -161,6 +195,7 @@ async function get_all_activities_user() {
         throw error; 
     }
 }
+
 
 
 
@@ -303,13 +338,13 @@ async function deleteActivityAndFile(actividad, tema) {
 
     const data = await response.json();
 
-    if (response.ok) {
-        console.log('Actividad eliminada:', data.message);
-    } else {
-        console.error('Error al eliminar la actividad:', data.message);
-    }
+    // Devuelvo siempre un objeto que puedas inspeccionar
+    return {
+        ok: response.ok,
+        status: response.status,
+        message: data.message
+    };
 }
-
 
 
 

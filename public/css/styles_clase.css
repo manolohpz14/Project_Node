@@ -18,8 +18,8 @@ body {
 
 
 .topbar {
-    background-color: #ffffff;
-    color: rgb(0, 0, 0);
+    background-color: #73a4ff;
+    color: rgb(255, 255, 255) !important;
     display: flex;
     box-shadow: 0 6px 6px rgba(0, 0, 0, 0.1);
     justify-content: space-between;
@@ -33,6 +33,47 @@ body {
 .topbar-right {
     display: flex;
     align-items: center;
+    position: relative;
+    padding-right: 0.5rem;
+}
+
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;   /* justo debajo del contenido (imagen + username) */
+    right: 0;    /* alineado con el borde derecho */
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    z-index: 10000;
+    color: black !important;
+    transition: all 0.6s ease, opacity 0.4s ease;
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0
+}
+
+
+.dropdown-menu.open {
+  max-height: 12rem;    /* abre (ajusta según el tamaño de tu menú) */
+  opacity: 1;
+}
+
+.dropdown-menu ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.dropdown-menu li {
+    padding: 10px 15px;
+    cursor: pointer;
+    white-space: nowrap;  /* evita cortes feos de texto */
+    color:"black"
+}
+
+.dropdown-menu li:hover {
+    background-color: #f0f0f0;
 }
 
 
@@ -40,6 +81,7 @@ body {
     display: flex; /* Hacer que los elementos internos se alineen en una fila */
     align-items: center; /* Centrar verticalmente los elementos */
     gap: 1rem; /* Espacio entre los elementos */
+    
 }
 
 
@@ -77,7 +119,7 @@ body {
 
 .sidebar {
     width: 10rem;
-    background-color: #ffffff;
+    background-color: #f8fbff;
     color: rgb(0, 0, 0);
     text-align: center;
     transition: transform 0.5s ease-in-out;
@@ -147,15 +189,15 @@ transition: transform 0.5s ease-in-out;
     align-items: center;
     padding: 0.5rem;
     border-radius: 15px; /* Redondeamos las esquinas aquí */
-    background: linear-gradient(30deg, #ffffff, #939393);
+    background: linear-gradient(210deg, #4d94ff, #f8ff95);
     /* margin-top: 1rem; */
 }
 
 
 #imagenes_portada_saladillo{
     padding-top: 0.2rem;
-    width: 3rem;
-    margin-right: 0.4rem;
+    width: 2.2rem;
+    margin-right: 0.5rem;
 }
 
 
@@ -182,27 +224,25 @@ transition: transform 0.5s ease-in-out;
     padding-bottom: 1.5rem;
     margin-bottom: 0.5rem;
     margin-top: 0.8rem;
-    pointer-events: auto;
     cursor:pointer;
 }
 
 .sidebar-links li:hover {
     box-shadow: 2px 0px 2px 2px rgba(113, 113, 113, 0.2);
-    background-color: rgb(237, 237, 237);
+    background-color: rgb(226, 237, 255);
     scale: 1.1;
     transition: scale linear 0.1s;
 }
 
 .sidebar-links li.active {
     box-shadow: 2px 0px 2px 2px rgba(113, 113, 113, 0.2);
-    background-color: rgb(237, 237, 237);
+    background-color: rgb(226, 237, 255);
 }
 
 .sidebar-links a {
     color: rgb(0, 0, 0);
     text-decoration: none;
     margin-left:0.5rem;
-    pointer-events:auto;
    
 }
 
@@ -278,7 +318,17 @@ p .toggle-sidebar-btn {
 cursor:pointer
 }
 
-
+.loader-container {
+position: fixed;
+top: 0; left: 0;
+width: 100%; height: 100%;
+background: rgba(255, 255, 255, 0.8);
+display: flex;
+align-items: center;
+justify-content: center;
+z-index: 9999;
+flex-direction: column;
+}
 
 
 .loader {

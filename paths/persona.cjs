@@ -5,7 +5,7 @@ const multer=require("multer");
 const fs= require("fs").promises
 const path=require("path")
 const jwt= require('jsonwebtoken')
-const {Usuarios, Actividades_entregadas}=require("../models/Persona.cjs")
+const {Usuarios, Actividades_entregadas, Actividades}=require("../models/Persona.cjs")
 
 
 //el primer parametro de cb es para indicar el error
@@ -204,6 +204,25 @@ async function validarExtensionactividad(req, file, cb) {
 
     }
 
+    const Fecha_entrega = new Date();
+
+        // Buscar la actividad original para comprobar fecha límite
+    const actividadOriginal = await Actividades.findOne({ Tema: req.body.Tema, Actividad: req.body.Actividad });
+    if (!actividadOriginal) {
+        req.NotExistActivity = 'Error';
+        return cb(null, false); // Rechazar el archivo
+    }
+
+    // Convertir Fecha_fin a Date
+    const fechaFin = new Date(actividadOriginal.Fecha_fin + "T23:59:59");
+
+    // Comprobar si la fecha de entrega es posterior a la fecha límite
+    if (Fecha_entrega > fechaFin) {
+        req.ActivityLate = 'Error';
+        return cb(null, false); // Rechazar el archivo
+    }
+
+
 
     const existsUsername = await Actividades_entregadas.findOne({ username:username, Tema: req.body.Tema, Actividad: req.body.Actividad});
 
@@ -319,6 +338,7 @@ router.post("/inicio/upload_answer",verificarToken, persona_Controller.upload_an
 router.post("/inicio/upload_activity",verificarToken, [subidas_actividades.single("archivo")], persona_Controller.upload_activity)
 router.delete("/inicio/delete_activity_and_File",verificarToken, persona_Controller.delete_activity_and_File) //Ruta que nos permite borrar usuarios.
 router.post("/inicio/add_activities", persona_Controller.insertarDocumentos)
+router.post("/inicio/logout",verificarToken, persona_Controller.logout)
 router.get("/downloadFile",verificarToken, persona_Controller.downloadFile)
 router.get("/inicio.html",verificarToken, persona_Controller.get_inicio_html)
 router.post("/create_activities_admin",verificarToken, persona_Controller.create_activities_admin)

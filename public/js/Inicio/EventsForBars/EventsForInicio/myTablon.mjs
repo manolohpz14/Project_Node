@@ -15,12 +15,12 @@ function eventforTablon(upload_message, objeto_foto, get_all_messages, nombre_us
     loader.style.width = "5rem";
     loader.style.height = "5rem";
     let grid = document.querySelector(".grid");
+    grid.style.removeProperty("justify-items");
     grid.style.display = "grid";                  // necesario para usar grid
     grid.style.gridTemplateColumns = "1fr";       // 1 columna que ocupa todo el ancho
     grid.style.gridAutoRows = "auto";   
     grid.innerHTML=""
     grid.append(loader);
-    let actividades_user
 
        
     try {
@@ -34,7 +34,7 @@ function eventforTablon(upload_message, objeto_foto, get_all_messages, nombre_us
         objeto=[]
       }
 
-      await new Promise((resolve, reject) => {
+      await new Promise((resolve) => {
         setTimeout(() => {
           loader.style.display = "none";
           grid.innerHTML=""
@@ -120,6 +120,11 @@ function eventforTablon(upload_message, objeto_foto, get_all_messages, nombre_us
           div.style.padding = "1rem"; // Espaciado interno
           div.style.border = "1px solid #ccc";
           div.style.borderRadius = "8px";
+          div.style.backgroundColor="#f8fbff"
+          div.style.maxWidth="86vw"
+          div.style.overflowWrap="break-word"
+          div.style.whiteSpace="normal"
+
 
           // Usar la función para obtener el valor de "username"
           const username = nombre_usuario;
@@ -380,6 +385,11 @@ function eventforTablon(upload_message, objeto_foto, get_all_messages, nombre_us
             div.style.borderRadius = "8px";
             div.style.position = "relative";
             div.style.marginTop = "1rem";
+            div.style.backgroundColor="#f8fbff"
+            div.style.maxWidth="86vw"
+            div.style.overflowWrap="break-word"
+            div.style.whiteSpace="normal"
+
             div.id = `comment-${persona.username}-${persona.fecha_anuncio}`;
 
             let foto;
@@ -524,6 +534,10 @@ function eventforTablon(upload_message, objeto_foto, get_all_messages, nombre_us
                   div.style.borderRadius = "8px";
                   div.style.position = "relative";
                   div.style.marginTop = "1rem";
+                  div.style.backgroundColor="#f8fbff"
+                  div.style.maxWidth="75vw"
+                  div.style.overflowWrap="break-word"
+                  div.style.whiteSpace="normal"
 
                   let foto;
                   const fotoEncontrada = objeto_foto.find((f) => f.username === persona.username);

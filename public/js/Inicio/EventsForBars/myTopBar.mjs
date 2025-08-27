@@ -1,3 +1,6 @@
+import { popUp, createform } from "../../portada/script_portada.mjs";
+
+
 
 
 function eventforTopBar(username,photosArray) {
@@ -15,14 +18,16 @@ function eventforTopBar(username,photosArray) {
 
 
 
-    const topbar_right=document.querySelector(".topbar-right")
-    topbar_right.style.cursor="pointer"
+    const topbarPhoto=document.querySelector(".topbar-photo")
+    topbarPhoto.style.cursor="pointer"
 
     let overlay = null;
 
 
+
+
     //------Añadimos a la foto la animación----------------
-    topbar_right.addEventListener("click", () => {
+    topbarPhoto.addEventListener("click", () => {
     if (overlay) {
         // Si ya existe el div llamado overlay, eliminarlo y restablecer la variable
         overlay.remove();
@@ -87,6 +92,160 @@ function eventforTopBar(username,photosArray) {
         }
     });
     });
+
+    const usernameSpan = document.querySelector(".topbar-username");
+    usernameSpan.style.cursor="pointer"
+    const dropdownMenu = document.querySelector("#dropdown-menu");
+    const changePassword = document.querySelector("#change-password");
+    const changeEmail = document.querySelector("#change-email");
+    const logout = document.querySelector("#logout");
+
+    usernameSpan.addEventListener("click", (e) => {
+        e.stopPropagation(); // Evita que suba al div padre (.topbar-right)(); // para que no se dispare el evento del div padre
+        dropdownMenu.classList.toggle("open"); //Si #dropdown-menu NO tiene la clase .open → se la añade → el menú se abre.
+        //Si #dropdown-menu YA tiene la clase .open → se la quita → el menú se cierra.
+    });
+
+    // Opcional: cerrar si clicas fuera
+    document.addEventListener("click", (e) => {
+        if (!dropdownMenu.contains(e.target) && !usernameSpan.contains(e.target)) {
+        dropdownMenu.classList.remove("open");
+        }
+    });
+
+
+    logout.addEventListener("click", async () => {
+        await fetch("/inicio/logout", {
+            method: "POST",
+            credentials: "include" // importante para que envíe la cookie
+        });
+        window.location.href = "/";
+        });
+
+
+    changeEmail.addEventListener("click", function(e){
+        e.stopPropagation()
+        popUp("rgba(255, 255, 255, 1)")
+        let texto_plano=document.createElement("h2")
+        texto_plano.style.fontFamily = "'Arial', sans-serif"; // Fuente moderna
+        texto_plano.textContent="Cambiar Contraseña"
+        texto_plano.style.fontSize="1.5rem"
+        texto_plano.color="black"
+        document.querySelector("#div_absolute_poppup").append(texto_plano)
+        createform({
+            id: "loginForm_singup",
+            action: "/inicio/change_password",
+            method: "POST",
+            enctype: "application/x-www-form-urlencoded",
+            fields: [
+                {
+                    type: "password",
+                    id: "password",
+                    name: "password",
+                    placeholder: "Contraseña",
+                    required: true
+                },
+                {
+                    type: "password",
+                    id: "repit_password",
+                    name: "repit_password",
+                    placeholder: "Repite la contraseña",
+                    required: true
+                }
+            ],
+            submitText: "Cambiar Contraseña",
+            targetContainer: "#div_absolute_poppup" // ID del contenedor donde se añadirá el formulario
+        });
+        
+        const form = document.getElementById("loginForm_singup");
+        const mensaje_servidor = document.createElement("p");
+        mensaje_servidor.style.fontFamily = "'Arial', sans-serif";
+        mensaje_servidor.style.fontSize = "1.1rem";
+        mensaje_servidor.style.marginTop = "1rem";
+        mensaje_servidor.style.display="none"
+        const popupDiv = document.querySelector("#div_absolute_poppup");
+        popupDiv.append(mensaje_servidor);
+
+        if (form) {
+            const boton= form.querySelector("button");
+
+            form.addEventListener("submit", async function(event) {
+                event.preventDefault(); // Evita recargar la página
+
+                // Spinner opcional mientras se procesa la petición
+                let loader = document.createElement("div");
+                loader.className = "loader";
+                popupDiv.append(loader);
+                boton.textContent = "Enviado";
+                boton.style.opacity = "0.4";   // efecto visual
+                boton.style.cursor = "not-allowed";
+                boton.disabled = true
+
+                // Recoger los datos del formulario
+                const formData = new FormData(form);
+                const data = new URLSearchParams();
+                for (const pair of formData) {
+                    data.append(pair[0], pair[1]);
+                }
+
+                try {
+                    const response = await fetch(form.action, {
+                        method: form.method,
+                        headers: {
+                            "Content-Type": "application/x-www-form-urlencoded"
+                        },
+                        body: data,
+                        credentials:"include"
+                    });
+
+                    loader.remove(); // Quitar spinner
+
+
+
+                    if (response.ok) {
+                        mensaje_servidor.style.display="block"
+                        mensaje_servidor.style.color = "green";
+                        mensaje_servidor.textContent = "¡Inicio de sesión exitoso!";
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                        if(formData.get("username")=="admin") {
+                            window.location.href = "/public_for_admin/inicio.html";
+                        }
+                        else {
+                            window.location.href = "/inicio.html";
+                        }
+                    } 
+                    else {
+                        mensaje_servidor.style.display="block"
+                        mensaje_servidor.style.color = "red";
+                        mensaje_servidor.textContent = `Error: Usuario o contraseña invalidos`;
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                        mensaje_servidor.style.display="none"
+                        boton.disabled = false;
+                        boton.textContent = "Enviar";
+                        boton.style.opacity = "1";   // efecto visual
+                        boton.style.cursor = "default";
+                        
+                    }
+
+                    
+                    
+                } catch (error) {
+                    loader.remove();
+                    mensaje_servidor.style.display="block"
+                    mensaje_servidor.style.color = "red";
+                    mensaje_servidor.textContent = `Error de conexión: ${error.message}`;
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    mensaje_servidor.style.display="none"
+                    boton.disabled = false;
+                    boton.textContent = "Enviar";
+                    boton.style.opacity = "1";   // efecto visual
+                    boton.style.cursor = "default";
+
+                }
+            });
+        }
+
+    })
 }
 
-export{eventforTopBar}
+export {eventforTopBar}

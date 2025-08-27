@@ -95,7 +95,7 @@ function get_all_activities_user(req, res) {
                 return res.status(200).json({ message: 'No se encontraron actividades' });
             }
 
-            // Iteramos sobre cada actividad para modificar el Nombre_archivo
+            // Iteramos sobre cada actividad para modificar el Nombre_archivo y no devolver la ruta al cliente
             actividades.forEach(actividad => {
                 actividad.Nombre_archivo = actividad.Nombre_archivo.split(path.sep).slice(-1)[0];
             });
@@ -111,12 +111,27 @@ function get_all_activities_user(req, res) {
 }
 
 
-async function delete_activity_and_File(req,res) {
+async function delete_activity_and_File(req, res) {
     try {
+        const username = req.cookies["username"];
+        const { Actividad, Tema } = req.body;
 
-        const username=req.cookies["username"]
-        const Actividad=req.body.Actividad
-        const Tema=req.body.Tema
+        // Buscar la actividad original en el esquema Actividades
+        const actividadOriginal = await Actividades.findOne({ Actividad, Tema });
+        if (!actividadOriginal) {
+            return res.status(404).json({ message: "Actividad no encontrada" });
+        }
+
+        // Fecha límite de la actividad (YYYY-MM-DD)
+        const fechaFin = new Date(actividadOriginal.Fecha_fin + "T23:59:59");
+
+        // Convertir Fecha_entrega de "DD/MM/YYYY, HH:mm:ss" a Date
+        const fechaActual = new Date();
+        // Comparar fechas
+        if (fechaActual  > fechaFin) {
+            return res.status(400).json({ message: "No se puede borrar la actividad, se ha pasado la fecha límite" });
+        }
+
         // Paso 1: Eliminar el registro del usuario en la base de datos
         await Actividades_entregadas.findOneAndDelete({ username, Actividad, Tema });
 
@@ -125,16 +140,17 @@ async function delete_activity_and_File(req,res) {
         rootpath.pop(); // Eliminar el último directorio (__dirname)
         rootpath = path.join(...rootpath);
 
-        const dirPath = path.join(rootpath, "imagenes", "personas", username, Tema+"_"+Actividad);
+        const dirPath = path.join(rootpath, "imagenes", "personas", username, `${Tema}_${Actividad}`);
         await fs.rm(dirPath, { recursive: true, force: true }); // Elimina la carpeta y su contenido
-        res.status(200).json({message:"Actividad_eliminada"});
 
+        res.status(200).json({ message: "Actividad eliminada correctamente" });
 
     } catch (error) {
-        res.status(500).json({ message: 'Hubo un error al obtener las actividades' });
-        console.error("Error al eliminar usuario y carpeta:", error.message);
+        console.error("Error al eliminar actividad y carpeta:", error.message);
+        res.status(500).json({ message: "Hubo un error al eliminar la actividad" });
     }
 }
+
 
 
 
@@ -454,11 +470,30 @@ const get_inicio_html_admin = async function (req, res) {
 
 
 
+// controllers/authController.js
+async function logout(req, res) {
+  try {
+    // Invalida la cookie en el navegador expirándola
+    res.clearCookie("token", {
+      httpOnly: false,
+      secure: process.env.NODE_ENV === "production", // solo HTTPS en prod
+      sameSite: "lax"
+    });
+
+    return res.status(200).json({ message: "Logout exitoso" });
+  } catch (err) {
+    return res.status(500).json({ message: "Error en logout", error: err.message });
+  }
+}
+
+
+
+
 
 const upload_activity = async function (req, res) {
     try {
         // Obtener los datos del cuerpo de la solicitud
-        const username=req.cookies["username"]
+        const username = req.cookies["username"];
         const tema = req.body.Tema;
         const actividad = req.body.Actividad;
         const comentarios = req.body.Comentarios;
@@ -471,57 +506,73 @@ const upload_activity = async function (req, res) {
             });
         }
 
-        if (req.fileValidationError === 'Error'){
+        if (req.fileValidationError === 'Error') {
             return res.status(400).json({
                 status: "error",
                 message: "Has pasado una extension no valida de imagen",
-            })
+            });
         }
 
-        if (req.bodyNotOK === 'Error'){
+        if (req.bodyNotOK === 'Error') {
             return res.status(400).json({
                 status: "error",
                 message: "No se han pasado los campos que se debían",
-            })
+            });
         }
 
-        if (req.alreadyExistsUser === 'Error'){
+        if (req.alreadyExistsUser === 'Error') {
             return res.status(400).json({
                 status: "error",
                 message: "Este usuario ya ha entregado esta actividad",
-            })
+            });
         }
 
-        const Fecha_entrega = new Date().toLocaleString('es-ES', {
-            timeZone: 'Europe/Madrid',
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-            hour12: false, // Formato 24 horas
-        });
+
+        if (req.ActivityLate === 'Error') {
+            return res.status(400).json({
+                status: "error",
+                message: "No se puede entregar la actividad tarde",
+            });
+        }
 
 
-        let Nombre_archivo
+        if (req.NotExistActivity === 'Error') {
+            return res.status(400).json({
+                status: "error",
+                message: "No existe la actividad",
+            });
+        }
+
+
+        // Crear fecha de entrega
+        const Fecha_entrega = new Date();
+
+
+        let Nombre_archivo;
         if (req.file) {
-            Nombre_archivo= req.file.path;
+            Nombre_archivo = req.file.path;
         }
 
-        // Crear un nuevo mensaje
+        // Crear un nuevo documento en Actividades_entregadas
         const nuevaEntrega = new Actividades_entregadas({
             username: username.trim(),
             Tema: tema.trim(),
-            Actividad:actividad,
-            Fecha_entrega: Fecha_entrega,
-            Comentarios:comentarios,
+            Actividad: actividad,
+            Fecha_entrega: Fecha_entrega.toLocaleString('es-ES', {
+                timeZone: 'Europe/Madrid',
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false,
+            }),
+            Comentarios: comentarios,
             Nombre_archivo
-
         });
 
-
-        // Guardar el mensaje en la base de datos
+        // Guardar la actividad en la base de datos
         const mensajeGuardado = await nuevaEntrega.save();
 
         // Devolver una respuesta exitosa
@@ -531,7 +582,6 @@ const upload_activity = async function (req, res) {
             data: mensajeGuardado,
         });
     } catch (error) {
-        // En caso de error, devolver un mensaje de error
         console.error("Error al crear el mensaje:", error.message);
         res.status(500).json({
             status: "error",
@@ -539,7 +589,6 @@ const upload_activity = async function (req, res) {
         });
     }
 };
-
 
 
 
@@ -686,7 +735,7 @@ async function start_session (req, res) {
         res.cookie('token', token, {
             httpOnly: true,
             expires: new Date(Date.now() + 60 * 60 * 1000), // 1 hora
-            secure: false,  // Cambiar a true si estás usando HTTPS
+            secure: process.env.NODE_ENV === "production",  // Cambiar a true si estás usando HTTPS
             sameSite: "lax"
         });
 
@@ -694,7 +743,7 @@ async function start_session (req, res) {
         res.cookie('username', persona.username, {
             httpOnly: false,  // Evitar que JavaScript acceda a la cookie
             expires: new Date(Date.now() + 60 * 60 * 1000), // 1 hora
-            secure: false,  // Cambiar a true si estás usando HTTPS
+            secure: process.env.NODE_ENV === "production",  // Cambiar a true si estás usando HTTPS
             sameSite: "lax"
         });
 
@@ -755,47 +804,53 @@ async function downloadFile(req, res) {
     try {
         // Obtener el nombre de usuario desde las cookies
         const username = req.cookies["username"];
-
-        // Validar que el nombre de usuario exista
         if (!username) {
             return res.status(400).json({ error: 'El nombre del usuario no existe.' });
         }
 
         // Obtener los parámetros de consulta
         const { actividad, tema } = req.query;
-
-        // Validar que los parámetros actividad y tema estén presentes
         if (!actividad || !tema) {
             return res.status(400).json({ error: 'Faltan parámetros requeridos (actividad o tema).' });
         }
 
-        // Buscar el archivo en la base de datos basado en username, actividad y tema
-        const activity = await Actividades_entregadas.findOne({
-            username: username,
-            Actividad: actividad,
-            Tema: tema,
-        });
+        // Construir la ruta de la carpeta donde se guarda el archivo
+        // Suponiendo que estamos en la ruta actual de este archivo, subimos una carpeta para llegar a "imagenes"
+        let rootPath = __dirname.split(path.sep);
+        rootPath.pop(); // subimos una carpeta
+        rootPath = path.join(...rootPath);
 
-        if (!activity) {
-            return res.status(404).json({ error: 'Archivo no encontrado para el usuario, actividad y tema especificados.' });
+        const dirPath = path.join(rootPath, "imagenes", "personas", username, `${tema}_${actividad}`);
+
+        // Verificar que la carpeta exista
+        try {
+            await fs.access(dirPath);
+        } catch {
+            return res.status(404).json({ error: 'Carpeta de actividad no encontrada.' });
         }
 
-        // Obtener la ruta absoluta del archivo
-        const filePath = activity.Nombre_archivo;
+        // Listar archivos en la carpeta (solo hay uno)
+        const files = await fs.readdir(dirPath);
+        if (files.length === 0) {
+            return res.status(404).json({ error: 'No se encontró ningún archivo en la carpeta.' });
+        }
 
-        // Enviar el archivo al cliente para la descarga
-        //res.download(path [, filename] [, options] [, callback])
-        res.download(filePath, path.basename(filePath), (err) => {
+        const filePath = path.join(dirPath, files[0]); // tomamos el primer archivo
+
+        // Enviar el archivo al cliente
+        res.download(filePath, files[0], (err) => {
             if (err) {
                 console.error('Error al enviar el archivo:', err);
                 res.status(500).json({ error: 'No se pudo descargar el archivo.' });
             }
         });
+
     } catch (error) {
         console.error('Error al manejar la solicitud de descarga:', error);
         res.status(500).json({ error: 'Error interno del servidor.' });
     }
 }
+
 
 
 const calculate_minutes_connected = async (req, res) => {
@@ -967,6 +1022,8 @@ async function changePassword(req,res){
 }
 
 
+
+
 async function get_all_photo(req, res) {
     try {
         const personas = await Usuarios.find({});
@@ -976,35 +1033,56 @@ async function get_all_photo(req, res) {
             });
         }
 
-        // Determinar la ruta raíz donde se encuentran las fotos
-        const rootpath = path.resolve(__dirname, '..'); // Retrocede un nivel en el directorio
+        // Ruta absoluta a la carpeta raíz del proyecto
+        const rootpath = path.resolve(__dirname, "..");
 
-        let array_fotos = [];
-        for (let persona of personas) {
-            if (!persona.foto) {
-                const filePath = path.join(rootpath, "anonimo.png");
-                array_fotos.push({ foto: filePath, username: persona.username, ult_conexion:persona.ult_conexion });
-            }
-            else {
-                const filePath = path.join(rootpath, persona.foto);
-                array_fotos.push({ foto: filePath, username: persona.username, ult_conexion:persona.ult_conexion });
-            }
-        }
+        // Ruta absoluta a la foto por defecto
+        const anonimoPath = path.join(rootpath, "public", "img", "anonimo.png");
 
-        // Crear un array con las fotos codificadas en base64
+        // Generar array con rutas a fotos
+        const array_fotos = personas.map((persona) => {
+            const fotoPath = persona.foto 
+                ? path.join(rootpath, persona.foto) 
+                : anonimoPath;
+            return { foto: fotoPath, username: persona.username, ult_conexion: persona.ult_conexion };
+        });
+
+        // Crear array con imágenes en base64
         const photosArray = await Promise.all(array_fotos.map(async (objeto) => {
             try {
                 const file = await fs.readFile(objeto.foto);
-                const mimeType = path.extname(objeto.foto) === '.jpg' ? 'image/jpeg' : 'image/png';
-                const base64Image = file.toString('base64');
-                return { foto: `data:${mimeType};base64,${base64Image}`, username: objeto.username, ult_conexion:objeto.ult_conexion };
+                const ext = path.extname(objeto.foto).toLowerCase();
+                const mimeType = ext === ".jpg" || ext === ".jpeg" ? "image/jpeg" : "image/png";
+                const base64Image = file.toString("base64");
+                return { 
+                    foto: `data:${mimeType};base64,${base64Image}`, 
+                    username: objeto.username, 
+                    ult_conexion: objeto.ult_conexion 
+                };
             } catch (err) {
-                console.error(`Error leyendo el archivo: ${objeto.foto}`, err.message);
-                return { foto: null, username: objeto.username, error: 'Error al leer la foto' };
+                console.error(`Error leyendo el archivo: ${objeto.foto}, usando anonimo.png`, err.message);
+
+                // Si falla, intenta cargar la imagen anónima
+                try {
+                    const file = await fs.readFile(anonimoPath);
+                    const base64Image = file.toString("base64");
+                    return { 
+                        foto: `data:image/png;base64,${base64Image}`, 
+                        username: objeto.username, 
+                        ult_conexion: objeto.ult_conexion 
+                    };
+                } catch (fallbackErr) {
+                    console.error("Error leyendo anonimo.png", fallbackErr.message);
+                    return { 
+                        foto: null, 
+                        username: objeto.username, 
+                        ult_conexion: objeto.ult_conexion, 
+                        error: "No se pudo cargar ninguna foto" 
+                    };
+                }
             }
         }));
 
-        // Enviar las fotos en un JSON
         res.status(200).json(photosArray);
     } catch (error) {
         console.error(error);
@@ -1014,7 +1092,6 @@ async function get_all_photo(req, res) {
         });
     }
 }
-
 
 
 
@@ -1043,7 +1120,8 @@ module.exports={
     downloadFile,
     create_activities_admin,
     get_inicio_html,
-    get_inicio_html_admin
+    get_inicio_html_admin,
+    logout
     
     
 }

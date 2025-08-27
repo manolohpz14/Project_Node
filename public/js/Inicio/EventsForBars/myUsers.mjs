@@ -91,12 +91,13 @@ function eventForUser(objeto_foto) {
         // Crear la imagen en el overlay
         const img_doc = document.createElement("img");
         img_doc.style.width = "30vw";
-        img_doc.style.borderRadius = "8px"; // Bordes redondeados, opcional
-        img_doc.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.2)";
+        img_doc.style.borderRadius = "0.5rem"; // Bordes redondeados, opcional
+        img_doc.style.boxShadow = "0 0.3rem 0.6rem rgba(0, 0, 0, 0.2)";
         img_doc.style.opacity = "0"; // Inicia transparente
         img_doc.style.transform = "translate(150%, -80%) scale(0.01)"; // Inicia desde fuera de la pantalla
 
         // Establecer la fuente de la imagen del overlay
+        
         img_doc.src = img.src ? img.src : "./img/anonimo.jpg";  // Usar la src de la imagen original o una predeterminada
 
         // Añadir la imagen al overlay

@@ -13,26 +13,55 @@ document.addEventListener("DOMContentLoaded", async function(){
 
   
   let open_bar = true; // Estado de visibilidad del sidebar
-  //handleSidebarContent()
+  //Iniciamos la media query del sidebar
   initSidebarResponsive();
   
+
   const username=getCookie("username")
 
 
-  //-------------------HAGO TODOS LOS FETCHS-------------------------
+  //-------------------HACEMOS TODOS LO FETCH QUE NOS EXPORTAMOS-------------------------
+  //En estar parte del codigo hacemos tres awaits. Para ahorrar tiempo podriamos hacer
+  //un promise.all()
+  const loader = document.createElement("div");
+  loader.className = "loader-container";
+  const spinner = document.createElement("div");
+  spinner.className = "loader";
+  loader.appendChild(spinner);
+  const grid=document.querySelector("grid")
+  grid.innerHTML=""
+  grid.style.display = "grid";
+  grid.style.gridTemplateColumns = "1fr"; // Una columna
+  grid.style.justifyItems = "center";     // Centra elementos horizontalmente
+  grid.style.rowGap = "1rem";             // Espacio entre filas
+  grid.append(loader)
+
+
+const errorMessage = document.createElement("div"); // Asegúrate de tener este div en HTML
+let photosArray
+let obj_actividades
+try {
+  // Ejecutar los awaits secuenciales
   await last_conexion();
-  
-  //paso a recoger la info de las fotos y la ultimas conexiones de los usuarios
-  const photosArray = await get_all_photo();
-    if (photosArray) {
-      console.log(photosArray); // Aquí tienes acceso a photosArray
-    }
 
+  photosArray = await get_all_photo();
+  if (photosArray) console.log(photosArray);
 
-  const obj_actividades = await get_all_activities();
-    if (obj_actividades) {
-      console.log(obj_actividades); // Aquí tienes acceso a photosArray
-    }
+  obj_actividades = await get_all_activities();
+  if (obj_actividades) console.log(obj_actividades);
+
+  // Esperar 2 segundos antes de quitar el loader
+  await new Promise(resolve => setTimeout(resolve, 2000));
+  loader.remove();
+
+} 
+
+catch (error) {
+  console.error("Error cargando datos:", error);
+  loader.remove();                    // Quitar loader si hay error
+  errorMessage.innerText = "❌ Ha habido un error cargando la página";
+  errorMessage.style.display = "block";
+}
 
   
   
