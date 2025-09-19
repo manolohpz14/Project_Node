@@ -33,6 +33,8 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(cookieParser());
 
+app.use(express.text({ type: "text/plain" })) //Si recibes una petición cuyo Content-Type sea text/plain, entonces léela como texto plano y guárdala en req.body."
+
 
 //app.listen(80, "0.0.0.0", function() {
 //console.log("Escuchando en el puerto 5049 en todas las interfaces");
