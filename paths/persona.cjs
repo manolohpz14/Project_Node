@@ -13,48 +13,44 @@ const {Usuarios, Actividades_entregadas, Actividades}=require("../models/Persona
 //un string para el almacenamiento, un true o false para una validacion,
 //un string para el nombre de un archivo
 const almacenamiento_imagenes = multer.diskStorage({
-    destination: async function (req, file, cb) {
-        try {
-            const username = req.body.username;
+  destination: async function (req, file, cb) {
+    try {
+      const username = req.body.username;
 
-    
-            // Si el usuario existe, procedemos con la creación de directorios
-            let rootpath = __dirname.split(path.sep);
-            rootpath.pop(); // Eliminar el último directorio (__dirname)
-            rootpath = path.join(...rootpath);
+      // Carpeta raíz del proyecto (un nivel arriba de __dirname)
+      const rootpath = path.resolve(__dirname, "..");
 
-    
-            // Crear la ruta del directorio usando path.join para que sea compatible con el SO
-            const filePath = path.join(rootpath, "imagenes", "personas", username);
+      // Ruta absoluta al directorio de imágenes del usuario
+      const filePath = path.join(rootpath, "imagenes", "personas", username);
 
-            await fs.mkdir(filePath, { recursive: true });
-    
-            // Establecer la ruta del archivo donde se almacenará usando path.join
-            cb(null, path.join("imagenes", "personas", username));
-        } catch (error) {
-            console.error("Error creando el directorio:", error.message);
-            cb(new Error("Error al crear el directorio"), null); // Propagar el error si ocurre
-        }
-    },
+      // Crear carpeta si no existe
+      await fs.mkdir(filePath, { recursive: true });
 
-    filename: function(req, file, callback) {
-        const nombre_usuario = req.body.username;
-        const now = new Date(Date.now());
-
-        const year = now.getFullYear();
-        const month = (now.getMonth() + 1).toString().padStart(2, '0');
-        const day = now.getDate().toString().padStart(2, '0');
-        const hours = now.getHours().toString().padStart(2, '0');
-        const minutes = now.getMinutes().toString().padStart(2, '0');
-        const seconds = now.getSeconds().toString().padStart(2, '0');
-        
-
-        const formattedDate = `${year}-${month}-${day}_${hours}-${minutes}-${seconds}`;
-        callback(null, nombre_usuario + "_" + formattedDate + "_" + file.originalname);
-        
+      // Pasar ruta absoluta al callback (Multer lo necesita)
+      cb(null, filePath);
+    } catch (error) {
+      console.error("Error creando el directorio:", error.message);
+      cb(new Error("Error al crear el directorio"), null);
     }
-});
+  },
 
+  filename: function (req, file, callback) {
+    const nombre_usuario = req.body.username;
+    const now = new Date();
+
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const day = String(now.getDate()).padStart(2, "0");
+    const hours = String(now.getHours()).padStart(2, "0");
+    const minutes = String(now.getMinutes()).padStart(2, "0");
+    const seconds = String(now.getSeconds()).padStart(2, "0");
+
+    const formattedDate = `${year}-${month}-${day}_${hours}-${minutes}-${seconds}`;
+    const safeFilename = `${nombre_usuario}_${formattedDate}_${file.originalname}`;
+
+    callback(null, safeFilename);
+  },
+});
 
 
 

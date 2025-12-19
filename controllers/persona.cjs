@@ -1021,83 +1021,94 @@ async function changePassword(req,res){
 
 }
 
-
-
-
 async function get_all_photo(req, res) {
-    try {
-        const personas = await Usuarios.find({});
-        if (!personas || personas.length === 0) {
-            return res.status(404).json({
-                mensaje: "No se encontraron usuarios."
-            });
-        }
-
-        // Ruta absoluta a la carpeta raíz del proyecto
-        const rootpath = path.resolve(__dirname, "..");
-
-        // Ruta absoluta a la foto por defecto
-        const anonimoPath = path.join(rootpath, "public", "img", "anonimo.png");
-
-        // Generar array con rutas a fotos
-        const array_fotos = personas.map((persona) => {
-            const fotoPath = persona.foto 
-                ? path.join(rootpath, persona.foto) 
-                : anonimoPath;
-            return { foto: fotoPath, username: persona.username, ult_conexion: persona.ult_conexion };
-        });
-
-        // Crear array con imágenes en base64
-        const photosArray = await Promise.all(array_fotos.map(async (objeto) => {
-            try {
-                const file = await fs.readFile(objeto.foto);
-                const ext = path.extname(objeto.foto).toLowerCase();
-                const mimeType = ext === ".jpg" || ext === ".jpeg" ? "image/jpeg" : "image/png";
-                const base64Image = file.toString("base64");
-                return { 
-                    foto: `data:${mimeType};base64,${base64Image}`, 
-                    username: objeto.username, 
-                    ult_conexion: objeto.ult_conexion 
-                };
-            } catch (err) {
-                console.error(`Error leyendo el archivo: ${objeto.foto}, usando anonimo.png`, err.message);
-
-                // Si falla, intenta cargar la imagen anónima
-                try {
-                    const file = await fs.readFile(anonimoPath);
-                    const base64Image = file.toString("base64");
-                    return { 
-                        foto: `data:image/png;base64,${base64Image}`, 
-                        username: objeto.username, 
-                        ult_conexion: objeto.ult_conexion 
-                    };
-                } catch (fallbackErr) {
-                    console.error("Error leyendo anonimo.png", fallbackErr.message);
-                    return { 
-                        foto: null, 
-                        username: objeto.username, 
-                        ult_conexion: objeto.ult_conexion, 
-                        error: "No se pudo cargar ninguna foto" 
-                    };
-                }
-            }
-        }));
-
-        res.status(200).json(photosArray);
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({
-            linea: error.stack,
-            mensaje: error.message
-        });
+  try {
+    const personas = await Usuarios.find({});
+    if (!personas || personas.length === 0) {
+      return res.status(404).json({ mensaje: "No se encontraron usuarios." });
     }
+
+    // Ruta absoluta a la carpeta raíz del proyecto
+    const rootpath = path.resolve(__dirname, "..");
+
+    // Ruta absoluta a la foto por defecto
+    const anonimoPath = path.join(rootpath, "public", "img", "anonimo.png");
+
+    // Generar array con rutas absolutas y normalizadas
+    const array_fotos = personas.map((persona) => {
+      let fotoPath;
+
+      if (persona.foto) {
+        if (path.isAbsolute(persona.foto)) {
+          // Si ya es absoluta, la normalizamos
+          fotoPath = path.normalize(persona.foto);
+        } else {
+          // Si es relativa, la resolvemos desde la raíz del proyecto
+          fotoPath = path.normalize(path.resolve(rootpath, persona.foto));
+        }
+      } else {
+        fotoPath = anonimoPath;
+      }
+
+      return {
+        foto: fotoPath,
+        username: persona.username,
+        ult_conexion: persona.ult_conexion,
+      };
+    });
+
+    // Crear array con imágenes en base64
+    const photosArray = await Promise.all(
+      array_fotos.map(async (objeto) => {
+        try {
+          const file = await fs.readFile(objeto.foto);
+          const ext = path.extname(objeto.foto).toLowerCase();
+          const mimeType =
+            ext === ".jpg" || ext === ".jpeg" ? "image/jpeg" : "image/png";
+          const base64Image = file.toString("base64");
+
+          return {
+            foto: `data:${mimeType};base64,${base64Image}`,
+            username: objeto.username,
+            ult_conexion: objeto.ult_conexion,
+          };
+        } catch (err) {
+          console.error(
+            `Error leyendo el archivo: ${objeto.foto}, usando anonimo.png`,
+            err.message
+          );
+
+          try {
+            const file = await fs.readFile(anonimoPath);
+            const base64Image = file.toString("base64");
+
+            return {
+              foto: `data:image/png;base64,${base64Image}`,
+              username: objeto.username,
+              ult_conexion: objeto.ult_conexion,
+            };
+          } catch (fallbackErr) {
+            console.error("Error leyendo anonimo.png", fallbackErr.message);
+            return {
+              foto: null,
+              username: objeto.username,
+              ult_conexion: objeto.ult_conexion,
+              error: "No se pudo cargar ninguna foto",
+            };
+          }
+        }
+      })
+    );
+
+    res.status(200).json(photosArray);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      linea: error.stack,
+      mensaje: error.message,
+    });
+  }
 }
-
-
-
-
-
-
 
 module.exports={
     root,

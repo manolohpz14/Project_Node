@@ -1,44 +1,64 @@
+version: "3.9"
 
 services:
+  # Contenedor de aplicación Node.js (replicado)
   node:
-    build: . #Oye, hazme la imagen de node a partir de mi Dockerfile
+    build: .
     restart: always
-    #container_name: contendor_node
-    ports:
-      - "5050:5050"
+    expose:
+      - "5050"
     depends_on:
       - mongo
     networks:
       - mi-app-node
     environment:
-      - PATH_DB=mongo #esto se controla desde el .env de mi proyecto
+      - PATH_DB=mongo
       - SSL=false
+    deploy:
+      replicas: 3
+      restart_policy:
+        condition: always
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5050"]
       interval: 30s
       retries: 3
       start_period: 5s
       timeout: 10s
-    # volumes:
-    #   - C:\Users\manolo\Desktop\MaterialDINT\proyecto_node_asignatura:/usr/src/app # Bind mount para almacenar los datos
+    volumes:
+      - imagenes_data:/imagenes
 
 
+  # Contenedor de MongoDB
   mongo:
+    image: mongo:8.0
     container_name: contenedor_mongodb
-    #image: mongo
-    build:
-      context: .  # Esto indica que Docker debe usar el contexto actual (donde está el Dockerfile)
-      dockerfile: Dockerfile_MongoDB_2  # El nombre del Dockerfile a usar
     ports:
-      - "27018:27017"
+      - "27019:27017"
     networks:
       - mi-app-node
+    volumes:
+      - mongo_data:/data/db   # ruta estándar en el contenedor
 
-
-    # volumes:
-    #   - C:\data\db:/data/db # Bind mount para almacenar los datos
-
+  # Contenedor de NGINX
+  nginx:
+    image: nginx:latest
+    container_name: contenedor_nginx
+    ports:
+      - "8079:80"   # el mundo externo accede por http://localhost:8080
+    depends_on:
+      - node
+    networks:
+      - mi-app-node
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro  # tu confisguración de NGINX
 
 networks:
   mi-app-node:
     driver: bridge
+
+
+volumes:
+  mongo_data:
+  imagenes_data:
+
+#Si el servicio node tiene réplicas, Docker DNS lo resuelve en distintas IPs de los contenedores, y NGINX hará las peticiones a una u otra (balanceo round-robin automático).
