@@ -1,7 +1,6 @@
 version: "3.9"
 
 services:
-  # Contenedor de aplicación Node.js (replicado)
   node:
     build: .
     restart: always
@@ -28,7 +27,6 @@ services:
       - imagenes_data:/imagenes
 
 
-  # Contenedor de MongoDB
   mongo:
     image: mongo:8.0
     container_name: contenedor_mongodb
@@ -37,20 +35,20 @@ services:
     networks:
       - mi-app-node
     volumes:
-      - mongo_data:/data/db   # ruta estándar en el contenedor
+      - mongo_data:/data/db
 
-  # Contenedor de NGINX
+
   nginx:
     image: nginx:latest
     container_name: contenedor_nginx
     ports:
-      - "8079:80"   # el mundo externo accede por http://localhost:8080
+      - "8079:80"
     depends_on:
       - node
     networks:
       - mi-app-node
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro  # tu confisguración de NGINX
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro 
 
 networks:
   mi-app-node:
@@ -60,5 +58,3 @@ networks:
 volumes:
   mongo_data:
   imagenes_data:
-
-#Si el servicio node tiene réplicas, Docker DNS lo resuelve en distintas IPs de los contenedores, y NGINX hará las peticiones a una u otra (balanceo round-robin automático).
