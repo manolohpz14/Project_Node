@@ -43,12 +43,13 @@ services:
     container_name: contenedor_nginx
     ports:
       - "8079:80"
+      - "443:443"
     depends_on:
       - node
     networks:
       - mi-app-node
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro 
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
 
 networks:
   mi-app-node:
