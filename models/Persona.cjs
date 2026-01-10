@@ -122,19 +122,23 @@ const ActivitiesSchema = new Schema({
     },
 });
 
+function fechaISO(date = new Date()) {
+    return date.toISOString().split("T")[0];
+}
 
 //La siguiente función se ejecuta en cuanto no haya nada subido a Actividades
+const hoy = new Date();
+const fechaFin = new Date(hoy);
+fechaFin.setDate(hoy.getDate() + 10);
 async function crearActividadPorDefecto() {
     const count = await Actividades.countDocuments();
     if (count === 0) {
         await Actividades.create({
             Tema: "General",
-            Color: "black",
+            Color: "blue",
             Actividad: "Actividad por defecto",
-            Fecha_creación: new Date().toLocaleString("es-ES", {
-                timeZone: "Europe/Madrid"
-            }),
-            Fecha_fin: "Sin fecha",
+            Fecha_creación: fechaISO(),
+            Fecha_fin: fechaISO(fechaFin),
             Abreviacion: "DEF",
             Explicacion: "Actividad creada automáticamente porque no existían actividades"
         });
@@ -216,6 +220,44 @@ const MensajesSchema = new Schema({
         }
 });
 
+
+async function crearMensajesPorDefecto() {
+    const count = await Mensajes.countDocuments();
+
+    if (count === 0) {
+        const fechaActual = new Date().toLocaleString('es-ES', {
+            timeZone: 'Europe/Madrid',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false
+        });
+
+        await Mensajes.insertMany([
+            {
+                username: "admin",
+                texto: "Bienvenidos a la plataforma. Este espacio se utilizará para avisos y comunicaciones importantes.",
+                fecha_anuncio: fechaActual,
+                likes: [],
+                respuestas: []
+            },
+            {
+                username: "profesor_demo",
+                texto: "Recordad revisar las actividades y fechas de entrega. ¡Mucho ánimo con el curso!",
+                fecha_anuncio: fechaActual,
+                likes: [],
+                respuestas: []
+            }
+        ]);
+
+        console.log("Mensajes de bienvenida creados automáticamente");
+    }
+}
+
+
 //---------Inicializar los esquemas y exportarlos a contrlers-----------
 const Usuarios = model("Usuarios", ContactosSchema, "Users");
 const Actividades = model("Actividades", ActivitiesSchema, "Activities");
@@ -225,7 +267,7 @@ const Mensajes = model("Mensajes", MensajesSchema, "Messages");
 
 
 
-module.exports = { Usuarios, Actividades, Actividades_entregadas,Mensajes };
+module.exports = { Usuarios, Actividades, Actividades_entregadas,Mensajes, crearActividadPorDefecto, crearMensajesPorDefecto};
 
 
 

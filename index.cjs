@@ -1,9 +1,11 @@
+require("dotenv").config();
 const conector=require("./database/conexion.cjs")
 const express= require("express")
 const cors= require("cors")
 const persona_paths= require("./paths/persona.cjs")
 const cookieParser = require('cookie-parser');
-const { crearActividadPorDefecto } = require("./models/Persona.cjs");
+const { crearActividadPorDefecto, crearMensajesPorDefecto } = require("./models/Persona.cjs");
+
 
 
 async function main() {
@@ -11,6 +13,7 @@ async function main() {
         console.log("Iniciamos");
         await conector.conexion();
         await crearActividadPorDefecto();
+        await crearMensajesPorDefecto()
 
         const app = express();
 

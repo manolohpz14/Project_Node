@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const path = require('path');
 
+const useSSL = process.env.SSL === "true";
 
 async function conexion() {
     try {
@@ -8,22 +9,20 @@ async function conexion() {
         console.log(uri)
         
 
-        if (process.env.SSL ==="false") {
-            // Conexión normal sin opciones avanzadas
+        const useSSL = process.env.SSL === "true";
+
+        if (!useSSL) {
             await mongoose.connect(uri);
-            console.log("Conexión normal establecida con MongoDB");
+            console.log("Conexion normal establecida")
         } else {
-            // Conexión con opciones avanzadas (TLS y certificados)
             await mongoose.connect(uri, {
-                useNewUrlParser: true,
-                useUnifiedTopology: true,
-                tls: true, // Usar TLS (SSL)
-                tlsCAFile: path.join(__dirname, '../ca.crt'), // Ruta al certificado de la CA
-                tlsCertificateKeyFile: path.join(__dirname, '../server_combined.pem'),
+                tls: true,
+                tlsCAFile: path.join(__dirname, "../ca.crt"),
+                tlsCertificateKeyFile: path.join(__dirname, "../server_combined.pem"),
                 tlsAllowInvalidCertificates: true
             });
-            console.log("Conexión avanzada establecida con MongoDB");
         }
+
     } catch (error) {
         console.error("Error al conectar con MongoDB:", error);
     }
