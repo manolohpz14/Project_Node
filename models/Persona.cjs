@@ -3,7 +3,7 @@ const bcrypt = require("bcrypt");
 
 
 
-// Definir el esquema de Contactos
+//---------Definir el esquema de Contactos-----------
 const ContactosSchema = new Schema({
     nombre: {
         type: String,
@@ -87,6 +87,8 @@ ContactosSchema.methods.comparePassword = async function(password) { //con metod
 };
 
 
+
+//---------Definir el esquema de Actividades-----------
 const ActivitiesSchema = new Schema({
     Tema: {
         type: String,
@@ -121,9 +123,28 @@ const ActivitiesSchema = new Schema({
 });
 
 
+//La siguiente función se ejecuta en cuanto no haya nada subido a Actividades
+async function crearActividadPorDefecto() {
+    const count = await Actividades.countDocuments();
+    if (count === 0) {
+        await Actividades.create({
+            Tema: "General",
+            Color: "black",
+            Actividad: "Actividad por defecto",
+            Fecha_creación: new Date().toLocaleString("es-ES", {
+                timeZone: "Europe/Madrid"
+            }),
+            Fecha_fin: "Sin fecha",
+            Abreviacion: "DEF",
+            Explicacion: "Actividad creada automáticamente porque no existían actividades"
+        });
+        console.log("Actividad por defecto creada");
+    }
+}
 
 
 
+//---------Definir el esquema de Entregas-----------
 const EntregasSchema = new Schema({
     username: {
         type: String,
@@ -157,7 +178,7 @@ const EntregasSchema = new Schema({
 });
 
 
-
+//---------Definir el esquema de Mensajes-----------
 const MensajesSchema = new Schema({
     username: {
         type: String,
@@ -195,7 +216,7 @@ const MensajesSchema = new Schema({
         }
 });
 
-
+//---------Inicializar los esquemas y exportarlos a contrlers-----------
 const Usuarios = model("Usuarios", ContactosSchema, "Users");
 const Actividades = model("Actividades", ActivitiesSchema, "Activities");
 const Actividades_entregadas = model("Actividades_entregadas", EntregasSchema, "Activities_recieved");

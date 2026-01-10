@@ -42,7 +42,7 @@ services:
     image: nginx:latest
     container_name: contenedor_nginx
     ports:
-      - "8079:80"
+      - "80:80"
       - "443:443"
     depends_on:
       - node
@@ -50,6 +50,7 @@ services:
       - mi-app-node
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
 
 networks:
   mi-app-node:
