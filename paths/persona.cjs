@@ -308,82 +308,10 @@ function verificarToken(req, res, next) {
 }
 
 
-//const parseFormFields = multer().none();
-//-------------------------
-
-router.get("/saludo", (req, res) => {
-  res.json({ mensaje: "Hola, este GET no necesita parámetros" });
-});
-
-
-
-router.get("/consulta", (req, res) => {
-  const { nombre, edad } = req.query;
-  res.send({ mensaje: "Recibido GET con query params", nombre, edad }); //lo mismo que res.json
-});
-
-
-
-router.get("/consulta/:id", (req, res) => {
-  const { id } = req.params;
-  res.json({ mensaje: "Recibido GET con parámetro de ruta", id });
-});
-
-
-router.post("/form-url", (req, res) => {
-  // Ejemplo 1: json
-  const { nombre, edad } = req.body;
-  res.send({ mensaje: "Recibido POST urlencoded", nombre, edad });
-});
-
-
-router.post("/form-url2", (req, res) => {
-  const { nombre, edad } = req.body;
-
-  // Ejemplo 2: texto plano
-  res.send(`Formulario recibido: ${nombre}, ${edad}`);
-
-});
-
-
-router.post("/form-url3", (req, res) => {
-  const { nombre, edad } = req.body;
-
-  // Ejemplo 3: array
-  res.send([nombre, edad]);
-
-});
-
-
-router.post("/form-url4", (req, res) => {
-  const { nombre, edad } = req.body;
-
-  // Ejemplo 4: HTML
-  res.send(`<p>Usuario: ${nombre}</p><p>Edad: ${edad}</p>`);
-
-});
-
-
-
-router.put("/texto", (req, res) => {
-  const contenido = req.body;
-  res.send({ mensaje: "Recibido PUT text/plain", contenido });
-});
-
-
-
-
 //-------------------------
 router.post("/register",[subidas_imagenes.single("foto")], persona_Controller.create) //Ruta que nos permite crear el usuario en la db
 //router.put('/inicio/:name', persona_Controller.changePassword) //Ruta que nos permite cambiar contraseñas,emails. Es protegida por el middleware
 router.delete("/usuario",verificarToken, persona_Controller.delete_One) //Ruta que nos permite borrar usuarios.
-
-
-
-
-
-
-
 
 //---------------------------
 router.get("/", persona_Controller.root)  //Ruta que nos permite obtener el token de inicio de sesión y obtener el html de portada
