@@ -122,38 +122,44 @@ function eventforTopBar(username,photosArray) {
         window.location.href = "/";
         });
 
-
     changeEmail.addEventListener("click", function(e){
         e.stopPropagation()
         popUp("rgba(255, 255, 255, 1)")
         let texto_plano=document.createElement("h2")
         texto_plano.style.fontFamily = "'Arial', sans-serif"; // Fuente moderna
-        texto_plano.textContent="Cambiar Contraseña"
+        texto_plano.textContent="Cambiar Email"
         texto_plano.style.fontSize="1.5rem"
         texto_plano.color="black"
         document.querySelector("#div_absolute_poppup").append(texto_plano)
         createform({
             id: "loginForm_singup",
-            action: "/inicio/change_password",
+            action: "/inicio/change_email",
             method: "POST",
             enctype: "application/x-www-form-urlencoded",
             fields: [
                 {
-                    type: "password",
-                    id: "password",
-                    name: "password",
-                    placeholder: "Contraseña",
+                    type: "text",
+                    id: "email",
+                    name: "email",
+                    placeholder: "Email actual",
                     required: true
                 },
                 {
-                    type: "password",
-                    id: "repit_password",
-                    name: "repit_password",
-                    placeholder: "Repite la contraseña",
+                    type: "text",
+                    id: "repit_email",
+                    name: "repit_email",
+                    placeholder: "Email nuevo",
+                    required: true
+                },
+                {
+                    type: "text",
+                    id: "repit_email",
+                    name: "repit_email",
+                    placeholder: "Repite el Email nuevo",
                     required: true
                 }
             ],
-            submitText: "Cambiar Contraseña",
+            submitText: "Cambiar Email",
             targetContainer: "#div_absolute_poppup" // ID del contenedor donde se añadirá el formulario
         });
         
@@ -168,7 +174,6 @@ function eventforTopBar(username,photosArray) {
 
         if (form) {
             const boton= form.querySelector("button");
-
             form.addEventListener("submit", async function(event) {
                 event.preventDefault(); // Evita recargar la página
 
@@ -187,7 +192,6 @@ function eventforTopBar(username,photosArray) {
                 for (const pair of formData) {
                     data.append(pair[0], pair[1]);
                 }
-
                 try {
                     const response = await fetch(form.action, {
                         method: form.method,
@@ -199,8 +203,6 @@ function eventforTopBar(username,photosArray) {
                     });
 
                     loader.remove(); // Quitar spinner
-
-
 
                     if (response.ok) {
                         mensaje_servidor.style.display="block"
@@ -226,8 +228,6 @@ function eventforTopBar(username,photosArray) {
                         boton.style.cursor = "default";
                         
                     }
-
-                    
                     
                 } catch (error) {
                     loader.remove();
@@ -240,12 +240,137 @@ function eventforTopBar(username,photosArray) {
                     boton.textContent = "Enviar";
                     boton.style.opacity = "1";   // efecto visual
                     boton.style.cursor = "default";
-
                 }
             });
         }
-
     })
+
+    changePassword.addEventListener("click", function(e){
+        e.stopPropagation()
+        popUp("rgba(255, 255, 255, 1)")
+        let texto_plano=document.createElement("h2")
+        texto_plano.style.fontFamily = "'Arial', sans-serif"; // Fuente moderna
+        texto_plano.textContent="Cambiar Contraseña"
+        texto_plano.style.fontSize="1.5rem"
+        texto_plano.color="black"
+        document.querySelector("#div_absolute_poppup").append(texto_plano)
+        createform({
+            id: "loginForm_singup",
+            action: "/inicio/change_password",
+            method: "POST",
+            enctype: "application/x-www-form-urlencoded",
+            fields: [
+                {
+                    type: "password",
+                    id: "password",
+                    name: "password",
+                    placeholder: "Contraseña",
+                    required: true
+                },
+                {
+                    type: "password",
+                    id: "new_password",
+                    name: "new_password",
+                    placeholder: "Contraseña Nueva",
+                    required: true
+                },
+
+                {
+                    type: "password",
+                    id: "repit_password",
+                    name: "repit_password",
+                    placeholder: "Repite la Contraseña Nueva",
+                    required: true
+                }
+            ],
+            submitText: "Cambiar Contraseña",
+            targetContainer: "#div_absolute_poppup" // ID del contenedor donde se añadirá el formulario
+        });
+        
+        const form = document.getElementById("loginForm_singup");
+        const mensaje_servidor = document.createElement("p");
+        mensaje_servidor.style.fontFamily = "'Arial', sans-serif";
+        mensaje_servidor.style.fontSize = "1.1rem";
+        mensaje_servidor.style.marginTop = "1rem";
+        mensaje_servidor.style.display="none"
+        const popupDiv = document.querySelector("#div_absolute_poppup");
+        popupDiv.append(mensaje_servidor);
+
+        if (form) {
+            const boton= form.querySelector("button");
+            form.addEventListener("submit", async function(event) {
+                event.preventDefault(); // Evita recargar la página
+
+                // Spinner opcional mientras se procesa la petición
+                let loader = document.createElement("div");
+                loader.className = "loader";
+                popupDiv.append(loader);
+                boton.textContent = "Enviado";
+                boton.style.opacity = "0.4";   // efecto visual
+                boton.style.cursor = "not-allowed";
+                boton.disabled = true
+
+                // Recoger los datos del formulario
+                const formData = new FormData(form);
+                const data = new URLSearchParams();
+                for (const pair of formData) {
+                    data.append(pair[0], pair[1]);
+                }
+                try {
+                    const response = await fetch(form.action, {
+                        method: form.method,
+                        headers: {
+                            "Content-Type": "application/x-www-form-urlencoded"
+                        },
+                        body: data,
+                        credentials:"include"
+                    });
+
+                    loader.remove(); // Quitar spinner
+
+                    if (response.ok) {
+                        mensaje_servidor.style.display="block"
+                        mensaje_servidor.style.color = "green";
+                        mensaje_servidor.textContent = "¡Inicio de sesión exitoso!";
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                        if(formData.get("username")=="admin") {
+                            window.location.href = "/public_for_admin/inicio.html";
+                        }
+                        else {
+                            window.location.href = "/inicio.html";
+                        }
+                    } 
+                    else {
+                        mensaje_servidor.style.display="block"
+                        mensaje_servidor.style.color = "red";
+                        mensaje_servidor.textContent = `Error: Usuario o contraseña invalidos`;
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                        mensaje_servidor.style.display="none"
+                        boton.disabled = false;
+                        boton.textContent = "Enviar";
+                        boton.style.opacity = "1";   // efecto visual
+                        boton.style.cursor = "default";
+                        
+                    }
+                    
+                } catch (error) {
+                    loader.remove();
+                    mensaje_servidor.style.display="block"
+                    mensaje_servidor.style.color = "red";
+                    mensaje_servidor.textContent = `Error de conexión: ${error.message}`;
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    mensaje_servidor.style.display="none"
+                    boton.disabled = false;
+                    boton.textContent = "Enviar";
+                    boton.style.opacity = "1";   // efecto visual
+                    boton.style.cursor = "default";
+                }
+            });
+        }
+    })
+
+
+    
 }
 
 export {eventforTopBar}

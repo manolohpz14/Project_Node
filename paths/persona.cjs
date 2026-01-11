@@ -79,9 +79,6 @@ async function validarExtensionyRegistro (req, file, cb) {
         return cb(null, false);  // Rechazar el archivo
     }
 
-
-
-
     if (existsEmail) {
         req.existsEmail = 'Error'; // Establecer el error en la solicitud
         return cb(null, false);  // Rechazar el archivo
@@ -310,7 +307,6 @@ function verificarToken(req, res, next) {
 
 //-------------------------
 router.post("/register",[subidas_imagenes.single("foto")], persona_Controller.create) //Ruta que nos permite crear el usuario en la db
-//router.put('/inicio/:name', persona_Controller.changePassword) //Ruta que nos permite cambiar contraseñas,emails. Es protegida por el middleware
 router.delete("/usuario",verificarToken, persona_Controller.delete_One) //Ruta que nos permite borrar usuarios.
 
 //---------------------------

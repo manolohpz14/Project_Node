@@ -1015,11 +1015,6 @@ async function delete_One(req, res) {
 
 
 
-//----------------------función para editar contraseña de la db-------------------
-async function changePassword(req,res){
-  
-
-}
 
 async function get_all_photo(req, res) {
   try {
@@ -1116,7 +1111,6 @@ module.exports={
     start_session,
     edit_last_conexion,
     delete_One,
-    changePassword,
     get_all_photo,
     get_all_activities,
     get_all_messages,
